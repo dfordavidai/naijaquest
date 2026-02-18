@@ -746,16 +746,6 @@ input, select, textarea {
   font-size: max(16px, 1em) !important;
 }
 
-/* Every screen fills #app exactly */
-.screen {
-  position: absolute;
-  inset: 0;
-  display: none;
-  flex-direction: column;
-  overflow: hidden; /* children handle their own scroll */
-}
-.screen.active { display: flex; }
-
 /* Scrollable inner areas must not overflow their container */
 .screen > [style*="overflow-y:auto"],
 .screen > [style*="overflow-y: auto"],
@@ -803,10 +793,11 @@ input, select, textarea {
   max-height: 88dvh;
 }
 
-/* Buttons: prevent overflow on narrow screens */
-.btn-primary, .btn-secondary, .btn-gold {
-  max-width: 100%;
-  width: calc(100% - 32px);
+/* Buttons: fill width in setup/title flow */
+#setup-screen .btn-primary,
+#setup-screen .btn-secondary,
+#title-screen .btn-primary,
+#title-screen .btn-secondary {
   box-sizing: border-box;
 }
 
@@ -839,6 +830,7 @@ input, select, textarea {
 
 <!-- ===================== TITLE SCREEN ===================== -->
 <div class="screen active" id="title-screen">
+  <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:16px 20px;text-align:center;">
   <div class="flag-wrap"><div class="fs g"></div><div class="fs w"></div><div class="fs g2"></div></div>
   <svg class="char-preview" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
     <circle cx="80" cy="80" r="76" fill="#FFE5B4" stroke="#F4C542" stroke-width="3"/>
@@ -863,16 +855,16 @@ input, select, textarea {
   <div class="title-logo">Naija Love Quest</div>
   <div class="title-sub">🇳🇬 The Ultimate Nigerian Dating Adventure!</div>
   <div class="version-badge">✨ Ultimate Edition v6.0</div>
-  <button class="btn-primary" onclick="goToSetup()">▶ New Game</button>
-  <button class="btn-secondary" onclick="loadGame()">📂 Continue</button>
-  <button class="btn-secondary" onclick="startTutorial()" style="margin-top:4px">🎓 How to Play</button>
-  <button class="btn-secondary" onclick="showSettings()" style="margin-top:4px">⚙️ Settings</button>
-  <button class="btn-secondary" onclick="showScreen('tips-screen');buildTips();" style="margin-top:4px">💡 Dating Tips</button>
+  <button class="btn-primary" onclick="goToSetup()" style="width:100%;max-width:100%;margin:6px 0;">▶ New Game</button>
+  <button class="btn-secondary" onclick="loadGame()" style="width:100%;max-width:100%;margin:4px 0;">📂 Continue</button>
+  <button class="btn-secondary" onclick="startTutorial()" style="width:100%;max-width:100%;margin:4px 0;">🎓 How to Play</button>
+  <button class="btn-secondary" onclick="showSettings()" style="width:100%;max-width:100%;margin:4px 0;">⚙️ Settings</button>
+  </div>
 </div>
 
 <!-- ===================== SETUP SCREEN ===================== -->
 <div class="screen" id="setup-screen">
-  <div style="overflow-y:auto;padding:16px;flex:1;">
+  <div style="overflow-y:auto;padding:16px;flex:1;padding-bottom:0;">
   <div class="screen-header"><div class="screen-title">Create Your Character</div><div class="screen-sub">Who are you in this love story? 💛</div></div>
   <div class="setup-card">
     <div class="setup-label">Your Name</div>
@@ -898,7 +890,9 @@ input, select, textarea {
       <button class="lang-btn" id="lang-pidgin" onclick="setLang('pidgin')">🇳🇬 Pidgin</button>
     </div>
   </div>
-  <button class="btn-primary" onclick="startGame()">Let's Go! 🚀</button>
+  </div>
+  <div style="padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:rgba(0,0,0,.3);flex-shrink:0;border-top:1px solid rgba(255,255,255,.08);">
+    <button class="btn-primary" onclick="startGame()" style="margin:0 auto;display:block;width:100%;max-width:100%;">Let's Go! 🚀</button>
   </div>
 </div>
 
@@ -1456,7 +1450,8 @@ input, select, textarea {
 // GAME DATA & STATE
 // ============================================================
 const G = {
-  player: { name:'Player', avatar:0, trait:'funny', level:1, xp:0, skillPoints:3, lang:'english' },
+  player: { name:'', avatar:0, trait:'funny', level:1, xp:0, skillPoints:3, lang:'english' },
+  gameStarted: false,
   stats: { charm:50, money:60, confidence:40, intelligence:35 },
   wallet: 3000,
   day: 1,
@@ -2446,9 +2441,24 @@ function showToast(msg,dur=2500) {
   toastTimeout=setTimeout(()=>t.classList.remove('show'),dur);
 }
 
+// Screens that require an active character/game
+const GAME_SCREENS = new Set(['map-screen','scene-screen','date-screen','phone-screen','chat-screen','skills-screen','shop-screen','journal-screen','achievements-screen','leaderboard-screen','analytics-screen','event-screen','endings-screen','tips-screen','bestie-screen']);
+
+function gameIsActive() {
+  return G.gameStarted === true;
+}
+
 function showScreen(id) {
+  // Block access to game screens if no character created
+  if(GAME_SCREENS.has(id) && !gameIsActive()) {
+    showToast('⚠️ Create your character first!', 2000);
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('title-screen').classList.add('active');
+    return;
+  }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
 }
 
 function updateStats() {
@@ -2595,7 +2605,7 @@ function checkAchievements() {
 function saveGame() {
   if(G.whatIfMode) return; // Never save during what-if mode!
   try {
-    const save={player:G.player,stats:G.stats,wallet:G.wallet,day:G.day,timeOfDay:G.timeOfDay,energy:G.energy,visitsToday:G.visitsToday,relationships:G.relationships,inventory:G.inventory,skills:G.skills,achievements:G.achievements,messages:G.messages,completedLocations:[...G.completedLocations],datePlans:G.datePlans,endings:G.endings,sceneHistory:G.sceneHistory,consequences:G.consequences,anniversaries:G.anniversaries,milestones:G.milestones,jealousyLevel:G.jealousyLevel,familyVisits:G.familyVisits,choiceLog:G.choiceLog,timeline:G.timeline,challengeProgress:G.challengeProgress,gossipHeard:G.gossipHeard,dailyChallenge:G.dailyChallenge,ambientOn:G.ambientOn,foundLore:G.foundLore,crossoverUsed:G.crossoverUsed,adaezeUnlocked:G.adaezeUnlocked,tutorialDone:G.tutorialDone};
+    const save={player:G.player,stats:G.stats,wallet:G.wallet,day:G.day,timeOfDay:G.timeOfDay,energy:G.energy,visitsToday:G.visitsToday,relationships:G.relationships,inventory:G.inventory,skills:G.skills,achievements:G.achievements,messages:G.messages,completedLocations:[...G.completedLocations],datePlans:G.datePlans,endings:G.endings,sceneHistory:G.sceneHistory,consequences:G.consequences,anniversaries:G.anniversaries,milestones:G.milestones,jealousyLevel:G.jealousyLevel,familyVisits:G.familyVisits,choiceLog:G.choiceLog,timeline:G.timeline,challengeProgress:G.challengeProgress,gossipHeard:G.gossipHeard,dailyChallenge:G.dailyChallenge,ambientOn:G.ambientOn,foundLore:G.foundLore,crossoverUsed:G.crossoverUsed,adaezeUnlocked:G.adaezeUnlocked,tutorialDone:G.tutorialDone,gameStarted:G.gameStarted};
     localStorage.setItem('naija_love_quest_v3',JSON.stringify(save));
   } catch(e){}
 }
@@ -2637,6 +2647,7 @@ function loadGame() {
     G.crossoverUsed=save.crossoverUsed||[];
     G.adaezeUnlocked=save.adaezeUnlocked||false;
     G.tutorialDone=save.tutorialDone||false;
+    G.gameStarted=save.gameStarted||true;
     if(G.adaezeUnlocked&&!G.relationships.adaeze){G.relationships.adaeze={interest:10,met:false,status:'Stranger',dated:false,memories:[],phoneStep:0,broken:false};}
     initV6Features();
     buildMapScreen();
@@ -2682,7 +2693,7 @@ function startGame() {
     return;
   }
   G.player.name=name;
-  G.timeOfDay='morning';
+  G.gameStarted=true;
   G.energy=G.maxEnergy;
   G.visitsToday=0;
   G.endings={};
@@ -2737,7 +2748,7 @@ function buildMapScreen() {
     ${[55,130,190,270,325,390].map(x=>`<rect x="${x+5}" y="${70+Math.random()*40|0}" width="8" height="8" fill="rgba(255,215,0,.4)"/>`).join('')}
   </svg>`;
 
-  LOCATIONS.forEach((loc,idx)=>{
+  LOCATIONS.filter(loc=>!loc.secret).forEach((loc,idx)=>{
     const rel=G.relationships[loc.id];
     const met=rel&&rel.met;
     const completed=G.completedLocations.has(loc.id);
@@ -2756,7 +2767,7 @@ function buildMapScreen() {
   // Event banner
   html+=`<div class="event-banner" onclick="showEvents()">🎉 Special Events Available! Tap to view</div>`;
   // Quick access buttons row
-  html+=`<div style="position:absolute;bottom:75px;left:8px;right:8px;display:flex;gap:6px;z-index:5">
+  html+=`<div style="position:absolute;bottom:8px;left:8px;right:8px;display:flex;gap:6px;z-index:5">
     <button onclick="showBestie()" style="flex:1;background:rgba(0,188,212,.15);border:1px solid rgba(0,188,212,.3);color:var(--teal);font-size:11px;font-weight:800;padding:7px 4px;border-radius:12px;cursor:pointer">💬 Bestie</button>
     <button onclick="hearGossip()" style="flex:1;background:rgba(255,107,53,.15);border:1px solid rgba(255,107,53,.3);color:var(--orange);font-size:11px;font-weight:800;padding:7px 4px;border-radius:12px;cursor:pointer">🗣️ Gossip</button>
     <button onclick="showDailyChallenge()" style="flex:1;background:rgba(255,107,157,.15);border:1px solid rgba(255,107,157,.3);color:var(--pink);font-size:11px;font-weight:800;padding:7px 4px;border-radius:12px;cursor:pointer">🎯 Daily</button>
@@ -3405,6 +3416,10 @@ function closeResult() {
 }
 
 function backToMap() {
+  if(!gameIsActive()) {
+    showScreen('title-screen');
+    return;
+  }
   showScreen('map-screen');
   buildMapScreen();
   switchTab('map');
@@ -5116,6 +5131,7 @@ const BESTIE_CONVOS=[
 
 let bestieStep=0;
 function showBestie(){
+  if(!gameIsActive()) { showScreen('title-screen'); return; }
   _origShowScreen('bestie-screen');
   bestieStep=Math.floor(Math.random()*BESTIE_CONVOS.length);
   renderBestieConvo();
@@ -5197,6 +5213,7 @@ function getGossipHint(npcId){
 
 // ---- ANALYTICS SCREEN ----
 function switchTab(tab){
+  if(!gameIsActive()) { showScreen('title-screen'); return; }
   const screenMap={map:'map-screen',skills:'skills-screen',phone:'phone-screen',shop:'shop-screen',journal:'journal-screen',ach:'achievements-screen',analytics:'analytics-screen',settings:'settings-screen'};
   const id=screenMap[tab];
   if(!id) return;
@@ -5455,6 +5472,7 @@ const LEADERBOARD_RIVALS=[
 ];
 
 function showLeaderboard(){
+  if(!gameIsActive()) { showScreen('title-screen'); return; }
   _origShowScreen('leaderboard-screen');
   buildLeaderboard();
 }
@@ -5622,11 +5640,6 @@ function buildShareCard(){
     <div style="font-size:11px;color:rgba(255,255,255,.4);text-align:center;margin-top:8px">Screenshot this to share with friends! 📱</div>`;
 }
 
-function downloadShareCard(){
-  showToast('📱 Screenshot your screen to save! (Screenshot function varies by device)');
-  closeShareModal();
-}
-
 // ---- PATCH CHOICE LOGGING & CHALLENGE TRACKING ----
 // We hook into the choices rendering to log choices
 function logChoice(type,npcId,dialogueText,choiceText){
@@ -5698,20 +5711,19 @@ function applyAccessibility() {
 
 // ---- SETTINGS SCREEN ----
 function closeSettings() {
-  const dest = window._settingsFrom || ((G.player && G.player.name) ? 'map-screen' : 'title-screen');
-  if(dest === 'map-screen') {
+  if(gameIsActive()) {
     backToMap();
   } else {
-    if(typeof _origShowScreen === 'function') _origShowScreen(dest);
-    else showScreen(dest);
+    showScreen('title-screen');
   }
 }
 
 function showSettings() {
-  // Remember where to go back: map if game running, title if not
-  window._settingsFrom = (G.player && G.player.name) ? 'map-screen' : 'title-screen';
+  // Settings screen is NOT a game screen — accessible from title too
+  // Use _origShowScreen to bypass the game guard
+  window._settingsFrom = gameIsActive() ? 'map-screen' : 'title-screen';
   if(typeof _origShowScreen === 'function') _origShowScreen('settings-screen');
-  else showScreen('settings-screen');
+  else { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('settings-screen').classList.add('active'); }
   buildSettingsScreen();
 }
 
@@ -5858,8 +5870,13 @@ function refreshSaveCode() {
 function confirmResetGame() {
   if(confirm('Reset ALL game data? This cannot be undone.')) {
     localStorage.removeItem('naija_love_quest_v3');
+    G.gameStarted = false;
+    G.player.name = '';
     showToast('🗑️ Game reset. Returning to title...',2500);
-    setTimeout(()=>{ _origShowScreen('title-screen'); },2600);
+    setTimeout(()=>{
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      document.getElementById('title-screen').classList.add('active');
+    },2600);
   }
 }
 
@@ -5939,13 +5956,13 @@ function tutPrev() {
 
 function skipTutorial() {
   G.tutorialDone = true;
-  const from = window._tutorialFrom || 'title-screen';
-  if(G.player && G.player.name) {
+  if(gameIsActive()) {
+    // Has a character — go to map
     _origShowScreen('map-screen');
-  } else if(from === 'title-screen') {
-    _origShowScreen('title-screen');
   } else {
-    goToSetup();
+    // No character yet — back to title
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('title-screen').classList.add('active');
   }
 }
 
