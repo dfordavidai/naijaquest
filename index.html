@@ -1,0 +1,2367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Naija Love Quest 💚 v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+  --green:#008751; --green-light:#00b86b; --gold:#FFD700; --cream:#FFF8E7;
+  --brown:#5C3317; --pink:#FF6B9D; --blue:#4A90E2; --red:#E74C3C;
+  --purple:#9B59B6; --dark:#1a1a2e; --card:rgba(255,255,255,0.97);
+  --orange:#FF6B35; --teal:#00BCD4;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Nunito',sans-serif;background:#000;display:flex;justify-content:center;align-items:center;}
+#app{width:100%;max-width:430px;height:100vh;max-height:900px;position:relative;background:linear-gradient(160deg,#0f3460 0%,#1a1a2e 50%,#16213e 100%);overflow:hidden;display:flex;flex-direction:column;}
+
+/* STARS */
+.stars{position:absolute;inset:0;pointer-events:none;z-index:0;}
+.star{position:absolute;width:3px;height:3px;background:white;border-radius:50%;animation:twinkle 2s infinite alternate;}
+@keyframes twinkle{from{opacity:.2;transform:scale(1);}to{opacity:1;transform:scale(1.5);}}
+
+/* SCREENS */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;z-index:1;}
+.screen.active{display:flex;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeInUp .35s ease;}
+
+/* TOAST */
+.toast{position:absolute;top:70px;left:50%;transform:translateX(-50%) translateY(-120px);background:rgba(20,20,40,.97);border:2px solid var(--gold);color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:200;transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* MODAL OVERLAY */
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:150;display:none;justify-content:center;align-items:flex-end;padding-bottom:0;}
+.modal-overlay.show{display:flex;}
+.modal-sheet{background:linear-gradient(160deg,#1a1a2e,#0f3460);border-radius:24px 24px 0 0;width:100%;max-height:85vh;overflow-y:auto;padding:20px;border-top:3px solid var(--gold);}
+.modal-handle{width:40px;height:4px;background:rgba(255,255,255,.3);border-radius:2px;margin:0 auto 16px;}
+
+/* BUTTONS */
+.btn-primary{background:linear-gradient(135deg,var(--green),var(--green-light));color:white;border:none;padding:14px 32px;border-radius:50px;font-family:'Baloo 2',cursive;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(0,135,81,.5);transition:all .2s;width:100%;max-width:280px;display:block;margin:8px auto;}
+.btn-primary:active{transform:scale(.97);}
+.btn-secondary{background:rgba(255,255,255,.1);color:white;border:2px solid rgba(255,255,255,.3);padding:11px 28px;border-radius:50px;font-family:'Baloo 2',cursive;font-size:15px;cursor:pointer;transition:all .2s;width:100%;max-width:280px;display:block;margin:6px auto;}
+.btn-secondary:active{background:rgba(255,255,255,.2);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#1a1a2e;border:none;padding:12px 28px;border-radius:50px;font-family:'Baloo 2',cursive;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;display:block;margin:6px auto;}
+.btn-gold:active{transform:scale(.97);}
+
+/* STATS BAR */
+.stats-bar{background:rgba(0,0,0,.5);padding:10px 14px;display:flex;gap:10px;align-items:center;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0;position:relative;z-index:5;}
+.stat-item{display:flex;align-items:center;gap:4px;flex:1;}
+.stat-icon{font-size:13px;}
+.stat-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.15);border-radius:10px;overflow:hidden;}
+.stat-fill{height:100%;border-radius:10px;transition:width .6s ease;}
+.stat-fill.charm{background:linear-gradient(90deg,#FF6B9D,#ff9a9e);}
+.stat-fill.money{background:linear-gradient(90deg,var(--gold),#ffcc02);}
+.stat-fill.confidence{background:linear-gradient(90deg,var(--blue),#74b9ff);}
+.stat-fill.intelligence{background:linear-gradient(90deg,var(--purple),#a29bfe);}
+.stat-val{color:white;font-size:10px;font-weight:800;min-width:22px;}
+.day-badge{background:var(--gold);color:#1a1a2e;font-size:11px;font-weight:800;padding:3px 8px;border-radius:10px;font-family:'Baloo 2',cursive;flex-shrink:0;}
+
+/* ====== TITLE SCREEN ====== */
+#title-screen{justify-content:center;align-items:center;padding:20px;text-align:center;}
+.title-logo{font-family:'Baloo 2',cursive;font-size:40px;font-weight:800;background:linear-gradient(135deg,var(--gold),#ff6b35,var(--green-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;margin-bottom:6px;animation:pulse-title 3s ease-in-out infinite;}
+@keyframes pulse-title{0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
+.title-sub{color:rgba(255,255,255,.7);font-size:13px;margin-bottom:24px;}
+.flag-wrap{display:flex;justify-content:center;gap:0;margin-bottom:20px;}
+.fs{width:22px;height:44px;}
+.fs.g{background:var(--green);border-radius:4px 0 0 4px;}
+.fs.w{background:white;}
+.fs.g2{background:var(--green);border-radius:0 4px 4px 0;}
+.char-preview{width:150px;height:150px;margin:0 auto 20px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.version-badge{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:11px;padding:4px 12px;border-radius:20px;margin-bottom:16px;display:inline-block;}
+
+/* ====== SETUP SCREEN ====== */
+#setup-screen{overflow-y:auto;padding:16px;}
+.screen-header{text-align:center;padding:16px 0 12px;}
+.screen-title{font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--gold);margin-bottom:4px;}
+.screen-sub{color:rgba(255,255,255,.6);font-size:12px;}
+.setup-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px;margin-bottom:12px;}
+.setup-label{font-weight:800;color:var(--gold);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.name-input{width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.2);border-radius:12px;font-family:'Nunito',sans-serif;font-size:16px;outline:none;transition:border .2s;background:rgba(255,255,255,.08);color:white;}
+.name-input::placeholder{color:rgba(255,255,255,.4);}
+.name-input:focus{border-color:var(--green);}
+.avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.avatar-option{aspect-ratio:1;border-radius:12px;border:3px solid transparent;cursor:pointer;overflow:hidden;transition:all .2s;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;}
+.avatar-option.selected{border-color:var(--green);transform:scale(1.05);box-shadow:0 0 12px rgba(0,135,81,.5);}
+.avatar-option svg{width:100%;height:100%;}
+.trait-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.trait-btn{padding:10px;border-radius:10px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;color:rgba(255,255,255,.8);}
+.trait-btn.selected{border-color:var(--green);background:rgba(0,135,81,.2);color:var(--green-light);}
+.lang-toggle{display:flex;gap:8px;}
+.lang-btn{flex:1;padding:10px;border-radius:10px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.8);}
+.lang-btn.selected{border-color:var(--gold);background:rgba(255,215,0,.15);color:var(--gold);}
+
+/* ====== MAP SCREEN ====== */
+#map-screen{overflow:hidden;}
+.map-container{flex:1;position:relative;overflow:hidden;}
+.map-bg-img{position:absolute;inset:0;background:linear-gradient(180deg,#87CEEB 0%,#B8E4F7 20%,#98D8A0 55%,#5D8A5E 100%);}
+.map-title{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:var(--dark);background:rgba(255,255,255,.92);padding:5px 18px;border-radius:20px;white-space:nowrap;z-index:5;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.location-pin{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;z-index:4;transition:transform .2s;}
+.location-pin:active{transform:scale(.92)!important;}
+.pin-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 15px rgba(0,0,0,.35);border:3px solid white;transition:all .2s;}
+.pin-label{background:rgba(0,0,0,.78);color:white;font-size:10px;font-weight:800;padding:3px 8px;border-radius:10px;margin-top:3px;white-space:nowrap;}
+.pin-hearts{font-size:10px;background:rgba(0,0,0,.6);color:white;padding:2px 6px;border-radius:8px;margin-top:2px;}
+.player-lvl{position:absolute;top:12px;right:12px;background:linear-gradient(135deg,var(--gold),#ffaa00);color:#1a1a2e;font-family:'Baloo 2',cursive;font-weight:800;font-size:13px;padding:5px 12px;border-radius:20px;z-index:5;box-shadow:0 2px 10px rgba(255,165,0,.4);}
+.event-banner{position:absolute;bottom:12px;left:12px;right:12px;background:linear-gradient(135deg,var(--green),var(--green-light));color:white;border-radius:14px;padding:10px 14px;font-size:12px;font-weight:700;text-align:center;z-index:5;cursor:pointer;box-shadow:0 4px 15px rgba(0,135,81,.4);}
+
+/* ====== BOTTOM NAV ====== */
+.bottom-nav{display:flex;background:rgba(0,0,0,.85);border-top:1px solid rgba(255,255,255,.1);padding:4px 0 env(safe-area-inset-bottom);flex-shrink:0;z-index:20;}
+.nav-btn{flex:1;padding:8px 0;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;transition:all .2s;}
+.nav-btn .ni{font-size:20px;transition:transform .2s;}
+.nav-btn .nl{font-size:9px;color:rgba(255,255,255,.4);font-family:'Nunito',sans-serif;font-weight:800;letter-spacing:.3px;}
+.nav-btn.active .nl{color:var(--gold);}
+.nav-btn.active .ni{transform:scale(1.2);}
+
+/* ====== SCENE SCREEN ====== */
+#scene-screen{background:#1a1a2e;}
+.scene-bg-layer{flex:1;position:relative;overflow:hidden;}
+.npc-profile-card{background:white;border-radius:16px;overflow:hidden;margin:10px 12px 8px;box-shadow:0 6px 24px rgba(0,0,0,.25);flex-shrink:0;position:relative;z-index:5;}
+.npc-profile-header{padding:12px;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--green),var(--green-light));}
+.npc-av{width:54px;height:54px;border-radius:50%;border:3px solid white;flex-shrink:0;overflow:hidden;}
+.npc-av svg{width:100%;height:100%;}
+.npc-name{font-family:'Baloo 2',cursive;font-size:17px;font-weight:800;color:white;}
+.npc-det{color:rgba(255,255,255,.85);font-size:11px;margin-top:1px;}
+.npc-mood{font-size:20px;margin-left:auto;}
+.npc-interest{text-align:right;}
+.npc-hearts{font-size:16px;letter-spacing:-2px;}
+.npc-il{font-size:9px;color:rgba(255,255,255,.8);}
+.npc-tags{display:flex;gap:5px;padding:8px 12px;flex-wrap:wrap;}
+.npc-tag{background:#f0f7f4;color:var(--green);border:1px solid #c8e6c9;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:800;}
+.npc-stage-tag{background:#fff3cd;color:#856404;border:1px solid #ffd700;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:800;}
+.char-stage{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;align-items:flex-end;padding:0 20px;z-index:2;}
+.npc-char{animation:char-idle 3s ease-in-out infinite;}
+@keyframes char-idle{0%,100%{transform:rotate(-1deg);}50%{transform:rotate(1deg);}}
+.npc-char.happy{animation:char-happy 1s ease-in-out 3;}
+@keyframes char-happy{0%{transform:translateY(0);}50%{transform:translateY(-15px);}100%{transform:translateY(0);}}
+.npc-char.sad{animation:char-sad 0.5s ease-in-out 3;}
+@keyframes char-sad{0%,100%{transform:rotate(0);}50%{transform:rotate(-5deg);}75%{transform:rotate(3deg);}}
+.rival-char{position:absolute;right:10px;bottom:0;opacity:.6;animation:char-idle 2.5s ease-in-out infinite;animation-delay:.5s;}
+
+/* DIALOGUE BOX */
+.dialogue-box{position:relative;background:rgba(15,20,40,.97);border-top:3px solid var(--gold);padding:14px 14px 10px;z-index:10;flex-shrink:0;}
+.dialogue-name-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.dialogue-name{font-family:'Baloo 2',cursive;font-size:15px;font-weight:800;color:var(--gold);}
+.dialogue-mood-label{font-size:11px;color:rgba(255,255,255,.5);margin-left:auto;}
+.dialogue-text{color:white;font-size:13px;line-height:1.55;margin-bottom:12px;min-height:38px;}
+.typewriter-cursor{display:inline-block;width:2px;height:13px;background:var(--gold);animation:blink .7s infinite;vertical-align:middle;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.choices-container{display:flex;flex-direction:column;gap:7px;}
+.choice-btn{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);color:white;padding:9px 12px;border-radius:11px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-align:left;transition:all .2s;display:flex;align-items:center;gap:7px;line-height:1.4;}
+.choice-btn:active{transform:scale(.98);background:rgba(255,255,255,.18);}
+.choice-btn.good{border-color:rgba(0,184,107,.5);}
+.choice-btn.bad{border-color:rgba(231,76,60,.5);}
+.choice-btn.neutral{border-color:rgba(74,144,226,.5);}
+.choice-btn.pidgin{border-color:rgba(255,215,0,.5);}
+.ct{font-size:9px;padding:2px 5px;border-radius:5px;font-weight:800;text-transform:uppercase;flex-shrink:0;}
+.ct.good{background:var(--green);}
+.ct.bad{background:var(--red);}
+.ct.neutral{background:var(--blue);}
+.ct.pidgin{background:var(--gold);color:#1a1a2e;}
+
+/* RESULT PANEL */
+.result-panel{position:absolute;inset:0;background:rgba(0,0,0,.9);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:20;padding:24px;text-align:center;}
+.result-panel.show{display:flex;}
+.result-emoji{font-size:60px;margin-bottom:12px;animation:pop-in .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pop-in{from{transform:scale(0) rotate(-20deg);}to{transform:scale(1) rotate(0);}}
+.result-title{font-family:'Baloo 2',cursive;font-size:26px;font-weight:800;color:white;margin-bottom:8px;}
+.result-msg{color:rgba(255,255,255,.8);font-size:13px;line-height:1.6;margin-bottom:14px;}
+.result-xp{font-family:'Baloo 2',cursive;font-size:18px;color:var(--gold);margin-bottom:8px;}
+.debrief-section{background:rgba(255,255,255,.06);border-radius:12px;padding:12px;margin-bottom:12px;text-align:left;width:100%;}
+.debrief-title{color:var(--gold);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.debrief-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:12px;color:rgba(255,255,255,.8);line-height:1.4;}
+
+/* ACHIEVEMENTS */
+.achievement-pop{position:absolute;top:80px;right:12px;background:linear-gradient(135deg,var(--gold),#ffaa00);color:#1a1a2e;border-radius:14px;padding:10px 14px;z-index:180;transform:translateX(200px);transition:transform .5s cubic-bezier(.34,1.56,.64,1);max-width:200px;}
+.achievement-pop.show{transform:translateX(0);}
+.ach-title{font-family:'Baloo 2',cursive;font-size:13px;font-weight:800;}
+.ach-name{font-size:11px;margin-top:2px;}
+
+/* ====== SKILL TREE ====== */
+#skills-screen{overflow-y:auto;padding:12px;}
+.skill-section{margin-bottom:16px;}
+.skill-section-title{font-family:'Baloo 2',cursive;font-size:16px;color:var(--gold);font-weight:800;margin-bottom:10px;padding-left:4px;}
+.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.skill-card{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.skill-card.unlocked{border-color:var(--green);background:rgba(0,135,81,.12);}
+.skill-card.locked{opacity:.5;}
+.skill-card.locked::after{content:'🔒';position:absolute;top:8px;right:8px;font-size:14px;}
+.skill-card:active{transform:scale(.97);}
+.skill-icon{font-size:28px;margin-bottom:6px;}
+.skill-name{font-family:'Baloo 2',cursive;font-size:13px;color:white;font-weight:700;margin-bottom:3px;}
+.skill-desc{font-size:11px;color:rgba(255,255,255,.6);line-height:1.3;}
+.skill-cost{font-size:10px;color:var(--gold);font-weight:800;margin-top:5px;}
+
+/* ====== PHONE/TEXT SCREEN ====== */
+#phone-screen{background:#1a1a2e;overflow:hidden;}
+.phone-contacts{overflow-y:auto;flex:1;}
+.contact-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer;transition:background .2s;}
+.contact-item:active{background:rgba(255,255,255,.07);}
+.contact-av{width:48px;height:48px;border-radius:50%;overflow:hidden;flex-shrink:0;}
+.contact-av svg{width:100%;height:100%;}
+.contact-name{font-weight:800;color:white;font-size:14px;}
+.contact-preview{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px;}
+.contact-time{font-size:10px;color:rgba(255,255,255,.4);margin-left:auto;flex-shrink:0;}
+.unread-dot{width:10px;height:10px;border-radius:50%;background:var(--green);margin-left:8px;}
+#chat-screen{background:#0a0a1a;overflow:hidden;}
+.chat-header{background:rgba(0,0,0,.6);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);}
+.chat-back{background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;padding:0 4px;}
+.chat-name{font-family:'Baloo 2',cursive;font-size:17px;color:white;font-weight:700;}
+.chat-status{font-size:11px;color:var(--green-light);}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+.msg{max-width:75%;padding:10px 12px;border-radius:16px;font-size:13px;line-height:1.45;position:relative;}
+.msg.received{background:rgba(255,255,255,.1);color:white;align-self:flex-start;border-bottom-left-radius:4px;}
+.msg.sent{background:linear-gradient(135deg,var(--green),var(--green-light));color:white;align-self:flex-end;border-bottom-right-radius:4px;}
+.msg-time{font-size:9px;opacity:.6;margin-top:3px;}
+.chat-input-area{background:rgba(0,0,0,.5);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;border-top:1px solid rgba(255,255,255,.1);}
+.chat-replies{flex:1;display:flex;flex-direction:column;gap:6px;}
+.reply-opt{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:white;padding:8px 12px;border-radius:20px;font-size:12px;cursor:pointer;text-align:left;transition:all .2s;}
+.reply-opt:active{background:rgba(255,255,255,.18);}
+
+/* ====== SHOP SCREEN ====== */
+#shop-screen{overflow-y:auto;padding:12px;}
+.shop-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding:12px 0;}
+.shop-balance{font-family:'Baloo 2',cursive;font-size:20px;color:var(--gold);font-weight:800;}
+.gift-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.gift-card{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;}
+.gift-card:active{transform:scale(.95);}
+.gift-card.owned{border-color:var(--gold);}
+.gift-emoji{font-size:32px;margin-bottom:6px;}
+.gift-name{font-size:11px;color:white;font-weight:700;margin-bottom:4px;}
+.gift-price{font-size:11px;color:var(--gold);font-weight:800;}
+.gift-likes{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;}
+.activity-list{display:flex;flex-direction:column;gap:8px;}
+.activity-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s;}
+.activity-card:active{background:rgba(255,255,255,.12);}
+.act-icon{font-size:30px;flex-shrink:0;}
+.act-name{font-weight:800;color:white;font-size:13px;}
+.act-effect{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;}
+.act-cost{font-size:11px;color:var(--gold);font-weight:800;margin-left:auto;flex-shrink:0;}
+
+/* ====== DATE PLANNING ====== */
+.date-planner{background:rgba(255,255,255,.06);border-radius:16px;padding:16px;margin-bottom:12px;}
+.date-option-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;-ms-overflow-style:none;scrollbar-width:none;}
+.date-option-row::-webkit-scrollbar{display:none;}
+.date-opt{flex-shrink:0;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 14px;cursor:pointer;transition:all .2s;text-align:center;}
+.date-opt.sel{border-color:var(--gold);background:rgba(255,215,0,.12);}
+.date-opt-emoji{font-size:24px;display:block;margin-bottom:4px;}
+.date-opt-label{font-size:11px;color:white;font-weight:700;}
+
+/* ====== JOURNAL ====== */
+#journal-screen{overflow-y:auto;padding:12px;background:linear-gradient(160deg,#1a1a2e,#0f3460);}
+.journal-header{text-align:center;padding:12px 0 16px;}
+.npc-journal-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;transition:all .2s;}
+.npc-journal-card:active{background:rgba(255,255,255,.1);}
+.njc-row{display:flex;gap:12px;align-items:center;}
+.njc-av{width:54px;height:54px;border-radius:50%;overflow:hidden;flex-shrink:0;}
+.njc-av svg{width:100%;height:100%;}
+.njc-name{font-family:'Baloo 2',cursive;font-size:15px;color:white;font-weight:700;}
+.njc-status{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;}
+.njc-stage{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:800;margin-top:4px;display:inline-block;}
+.stage-stranger{background:rgba(255,255,255,.15);color:rgba(255,255,255,.7);}
+.stage-friend{background:rgba(74,144,226,.3);color:#74b9ff;}
+.stage-crush{background:rgba(255,107,157,.3);color:#ff6b9d;}
+.stage-partner{background:rgba(255,215,0,.3);color:var(--gold);}
+.love-bar-wrap{height:7px;background:rgba(255,255,255,.1);border-radius:10px;margin-top:8px;overflow:hidden;}
+.love-bar-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--red));border-radius:10px;transition:width .6s;}
+.njc-memory{font-size:11px;color:rgba(255,255,255,.45);margin-top:8px;font-style:italic;border-left:2px solid rgba(255,215,0,.3);padding-left:8px;}
+
+/* ====== ACHIEVEMENTS SCREEN ====== */
+#achievements-screen{overflow-y:auto;padding:12px;}
+.ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ach-card{background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);border-radius:14px;padding:12px;text-align:center;transition:all .3s;}
+.ach-card.earned{border-color:var(--gold);background:rgba(255,215,0,.1);}
+.ach-card.locked-ach{filter:grayscale(.8);opacity:.5;}
+.ach-badge{font-size:36px;margin-bottom:6px;}
+.ach-title{font-family:'Baloo 2',cursive;font-size:12px;color:white;font-weight:700;margin-bottom:3px;}
+.ach-desc{font-size:10px;color:rgba(255,255,255,.5);line-height:1.3;}
+
+/* ====== TRIVIA ====== */
+.trivia-panel{position:absolute;inset:0;background:linear-gradient(160deg,#1a1a2e,#0f3460);z-index:30;display:none;flex-direction:column;padding:20px;}
+.trivia-panel.show{display:flex;}
+.trivia-q{font-family:'Baloo 2',cursive;font-size:18px;color:white;font-weight:700;text-align:center;margin:20px 0;line-height:1.4;}
+.trivia-opts{display:flex;flex-direction:column;gap:10px;flex:1;}
+.trivia-opt{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);color:white;padding:14px 16px;border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.trivia-opt.correct{border-color:var(--green);background:rgba(0,135,81,.25);}
+.trivia-opt.wrong{border-color:var(--red);background:rgba(231,76,60,.25);}
+.trivia-score{text-align:center;font-family:'Baloo 2',cursive;font-size:16px;color:var(--gold);margin-bottom:16px;}
+
+/* ====== MINIGAME PANEL ====== */
+.minigame-panel{position:absolute;inset:0;background:linear-gradient(160deg,#1a1a2e,#0f3460);z-index:15;display:none;flex-direction:column;padding:20px;}
+.minigame-panel.show{display:flex;}
+.mg-title{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;color:var(--gold);text-align:center;margin-bottom:4px;}
+.mg-sub{color:rgba(255,255,255,.65);font-size:12px;text-align:center;margin-bottom:18px;line-height:1.4;}
+.mg-timer{text-align:center;font-family:'Baloo 2',cursive;font-size:28px;color:white;font-weight:800;margin-bottom:12px;}
+.mg-timer.urgent{color:var(--red);animation:pulse-red .5s infinite alternate;}
+@keyframes pulse-red{from{transform:scale(1);}to{transform:scale(1.1);}}
+.compliment-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;}
+.comp-card{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.15);border-radius:16px;padding:14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:7px;}
+.comp-card:active{transform:scale(.95);}
+.comp-card.correct{border-color:var(--green);background:rgba(0,135,81,.2);}
+.comp-card.wrong{border-color:var(--red);background:rgba(231,76,60,.2);}
+.comp-emoji{font-size:30px;}
+.comp-text{color:white;font-size:11px;font-weight:700;line-height:1.3;}
+
+/* ====== EVENT SCREEN ====== */
+#event-screen{overflow-y:auto;padding:16px;}
+.event-card{background:linear-gradient(135deg,var(--green),var(--green-light));border-radius:20px;padding:20px;margin-bottom:16px;color:white;text-align:center;cursor:pointer;}
+.event-emoji{font-size:48px;margin-bottom:12px;}
+.event-title{font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;margin-bottom:8px;}
+.event-desc{font-size:13px;opacity:.9;line-height:1.5;margin-bottom:16px;}
+
+/* ====== TIPS SCREEN ====== */
+#tips-screen{overflow-y:auto;padding:12px;}
+.tip-card{background:rgba(255,255,255,.06);border-left:4px solid var(--green);border-radius:12px;padding:14px;margin-bottom:12px;}
+.tip-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.tip-icon-big{font-size:26px;}
+.tip-title{font-family:'Baloo 2',cursive;font-size:15px;font-weight:800;color:white;}
+.tip-body{color:rgba(255,255,255,.7);font-size:12px;line-height:1.6;}
+
+/* RIVAL */
+.rival-event{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:25;display:none;flex-direction:column;justify-content:center;align-items:center;padding:24px;text-align:center;}
+.rival-event.show{display:flex;}
+.rival-title{font-family:'Baloo 2',cursive;font-size:24px;color:var(--red);font-weight:800;margin-bottom:12px;}
+.rival-msg{color:rgba(255,255,255,.85);font-size:14px;line-height:1.6;margin-bottom:20px;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
+
+/* NOTIFICATION DOT */
+.notif-dot{position:absolute;top:4px;right:20%;width:8px;height:8px;background:var(--red);border-radius:50%;display:none;}
+.notif-dot.show{display:block;}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="stars" id="stars"></div>
+<div class="toast" id="toast"></div>
+<div class="achievement-pop" id="ach-pop"><div class="ach-title">🏆 Achievement Unlocked!</div><div class="ach-name" id="ach-pop-name"></div></div>
+
+<!-- ===================== TITLE SCREEN ===================== -->
+<div class="screen active" id="title-screen">
+  <div class="flag-wrap"><div class="fs g"></div><div class="fs w"></div><div class="fs g2"></div></div>
+  <svg class="char-preview" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="80" cy="80" r="76" fill="#FFE5B4" stroke="#F4C542" stroke-width="3"/>
+    <text x="18" y="38" font-size="18">💚</text><text x="116" y="50" font-size="15">✨</text>
+    <text x="16" y="128" font-size="13">⭐</text><text x="120" y="126" font-size="17">💛</text>
+    <ellipse cx="80" cy="120" rx="30" ry="22" fill="#4A2F1A"/>
+    <path d="M52 108 Q80 98 108 108 L112 130 Q80 122 48 130Z" fill="#008751"/>
+    <rect x="56" y="108" width="48" height="16" rx="4" fill="#00b86b"/>
+    <rect x="73" y="88" width="14" height="18" rx="7" fill="#8B5E3C"/>
+    <ellipse cx="80" cy="78" rx="26" ry="28" fill="#8B5E3C"/>
+    <ellipse cx="80" cy="54" rx="26" ry="12" fill="#2C1810"/>
+    <ellipse cx="70" cy="74" rx="5" ry="6" fill="white"/>
+    <ellipse cx="90" cy="74" rx="5" ry="6" fill="white"/>
+    <circle cx="71" cy="75" r="3" fill="#2C1810"/><circle cx="91" cy="75" r="3" fill="#2C1810"/>
+    <circle cx="72" cy="74" r="1" fill="white"/><circle cx="92" cy="74" r="1" fill="white"/>
+    <path d="M68 87 Q80 96 92 87" stroke="#2C1810" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M72 88 Q80 93 88 88" fill="white"/>
+    <path d="M64 68 Q70 64 76 68" stroke="#2C1810" stroke-width="2" stroke-linecap="round"/>
+    <path d="M84 68 Q90 64 96 68" stroke="#2C1810" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="80" cy="82" rx="4" ry="3" fill="#7A4F2C"/>
+  </svg>
+  <div class="title-logo">Naija Love Quest</div>
+  <div class="title-sub">🇳🇬 The Ultimate Nigerian Dating Adventure!</div>
+  <div class="version-badge">✨ Full Edition v2.0</div>
+  <button class="btn-primary" onclick="goToSetup()">▶ New Game</button>
+  <button class="btn-secondary" onclick="loadGame()">📂 Continue</button>
+  <button class="btn-secondary" onclick="showScreen('tips-screen');buildTips();" style="margin-top:4px">💡 Dating Tips</button>
+</div>
+
+<!-- ===================== SETUP SCREEN ===================== -->
+<div class="screen" id="setup-screen">
+  <div style="overflow-y:auto;padding:16px;flex:1;">
+  <div class="screen-header"><div class="screen-title">Create Your Character</div><div class="screen-sub">Who are you in this love story? 💛</div></div>
+  <div class="setup-card">
+    <div class="setup-label">Your Name</div>
+    <input type="text" class="name-input" id="player-name" placeholder="Enter your name..." maxlength="20">
+  </div>
+  <div class="setup-card">
+    <div class="setup-label">Your Look</div>
+    <div class="avatar-grid" id="avatar-grid"></div>
+  </div>
+  <div class="setup-card">
+    <div class="setup-label">Your Personality</div>
+    <div class="trait-grid" id="trait-grid">
+      <button class="trait-btn selected" onclick="selectTrait(this,'funny')">😂 Funny Guy</button>
+      <button class="trait-btn" onclick="selectTrait(this,'romantic')">💕 Romantic</button>
+      <button class="trait-btn" onclick="selectTrait(this,'ambitious')">🚀 Ambitious</button>
+      <button class="trait-btn" onclick="selectTrait(this,'gentle')">🕊️ Gentle Soul</button>
+    </div>
+  </div>
+  <div class="setup-card">
+    <div class="setup-label">Dialogue Language</div>
+    <div class="lang-toggle">
+      <button class="lang-btn selected" id="lang-english" onclick="setLang('english')">🇬🇧 English</button>
+      <button class="lang-btn" id="lang-pidgin" onclick="setLang('pidgin')">🇳🇬 Pidgin</button>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="startGame()">Let's Go! 🚀</button>
+  </div>
+</div>
+
+<!-- ===================== MAP SCREEN ===================== -->
+<div class="screen" id="map-screen">
+  <div class="stats-bar" id="map-stats-bar">
+    <div class="stat-item"><span class="stat-icon">✨</span><div class="stat-bar-wrap"><div class="stat-fill charm" id="m-charm" style="width:50%"></div></div><span class="stat-val" id="m-charm-v">50</span></div>
+    <div class="stat-item"><span class="stat-icon">💰</span><div class="stat-bar-wrap"><div class="stat-fill money" id="m-money" style="width:60%"></div></div><span class="stat-val" id="m-money-v">60</span></div>
+    <div class="stat-item"><span class="stat-icon">💪</span><div class="stat-bar-wrap"><div class="stat-fill confidence" id="m-conf" style="width:40%"></div></div><span class="stat-val" id="m-conf-v">40</span></div>
+    <div class="stat-item"><span class="stat-icon">📚</span><div class="stat-bar-wrap"><div class="stat-fill intelligence" id="m-intel" style="width:35%"></div></div><span class="stat-val" id="m-intel-v">35</span></div>
+    <div class="day-badge" id="day-badge">Day 1</div>
+  </div>
+  <div class="map-container" id="map-container">
+    <div class="map-bg-img"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('map')"><span class="ni">🗺️</span><span class="nl">Map</span></button>
+    <button class="nav-btn" onclick="switchTab('skills')"><span class="ni">⚡</span><span class="nl">Skills</span></button>
+    <button class="nav-btn" onclick="switchTab('phone')"><span class="ni">📱</span><span class="nl">Phone</span><div class="notif-dot" id="phone-notif"></div></button>
+    <button class="nav-btn" onclick="switchTab('shop')"><span class="ni">🛍️</span><span class="nl">Shop</span></button>
+    <button class="nav-btn" onclick="switchTab('journal')"><span class="ni">📔</span><span class="nl">Journal</span></button>
+    <button class="nav-btn" onclick="switchTab('ach')"><span class="ni">🏆</span><span class="nl">Awards</span></button>
+  </div>
+</div>
+
+<!-- ===================== SCENE SCREEN ===================== -->
+<div class="screen" id="scene-screen">
+  <div class="stats-bar">
+    <div class="stat-item"><span class="stat-icon">✨</span><div class="stat-bar-wrap"><div class="stat-fill charm" id="s-charm" style="width:50%"></div></div><span class="stat-val" id="s-charm-v">50</span></div>
+    <div class="stat-item"><span class="stat-icon">💰</span><div class="stat-bar-wrap"><div class="stat-fill money" id="s-money" style="width:60%"></div></div><span class="stat-val" id="s-money-v">60</span></div>
+    <div class="stat-item"><span class="stat-icon">💪</span><div class="stat-bar-wrap"><div class="stat-fill confidence" id="s-conf" style="width:40%"></div></div><span class="stat-val" id="s-conf-v">40</span></div>
+    <button style="background:none;border:none;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;padding:4px" onclick="backToMap()">🗺️</button>
+  </div>
+  <div class="npc-profile-card" id="npc-profile-card"></div>
+  <div class="scene-bg-layer" id="scene-bg-layer">
+    <div class="char-stage" id="char-stage"></div>
+  </div>
+  <div class="dialogue-box" id="dialogue-box">
+    <div class="dialogue-name-row">
+      <div class="dialogue-name" id="dlg-name"></div>
+      <div class="dialogue-mood-label" id="dlg-mood"></div>
+    </div>
+    <div class="dialogue-text" id="dlg-text"></div>
+    <div class="choices-container" id="choices"></div>
+  </div>
+  <div class="result-panel" id="result-panel">
+    <div class="result-emoji" id="res-emoji">🎉</div>
+    <div class="result-title" id="res-title"></div>
+    <div class="result-msg" id="res-msg"></div>
+    <div class="debrief-section" id="res-debrief"></div>
+    <div class="result-xp" id="res-xp"></div>
+    <button class="btn-primary" style="max-width:200px" onclick="closeResult()">Continue</button>
+  </div>
+  <div class="minigame-panel" id="mg-panel">
+    <div class="mg-title" id="mg-title">Challenge!</div>
+    <div class="mg-timer" id="mg-timer">10</div>
+    <div class="mg-sub" id="mg-sub"></div>
+    <div class="compliment-grid" id="mg-grid"></div>
+    <button class="btn-secondary" style="margin-top:12px;max-width:180px" onclick="skipMinigame()">Skip (−5 Charm)</button>
+  </div>
+  <div class="rival-event" id="rival-event">
+    <div style="font-size:48px;margin-bottom:16px">😤</div>
+    <div class="rival-title" id="rival-title">Rival Alert!</div>
+    <div class="rival-msg" id="rival-msg"></div>
+    <button class="btn-primary" style="max-width:200px;margin-bottom:8px" onclick="handleRival(true)">Stand Your Ground 💪</button>
+    <button class="btn-secondary" style="max-width:200px" onclick="handleRival(false)">Back Off...</button>
+  </div>
+  <div class="trivia-panel" id="trivia-panel">
+    <div style="text-align:center;font-size:32px;margin-bottom:8px">🧠</div>
+    <div class="trivia-score" id="trivia-score">Cultural Trivia — +Bonus Charm!</div>
+    <div class="trivia-q" id="trivia-q"></div>
+    <div class="trivia-opts" id="trivia-opts"></div>
+  </div>
+</div>
+
+<!-- ===================== DATE SCENE SCREEN ===================== -->
+<div class="screen" id="date-screen">
+  <div class="stats-bar">
+    <div class="stat-item"><span class="stat-icon">💕</span><span style="color:white;font-family:'Baloo 2',cursive;font-size:14px;font-weight:800" id="date-screen-title">Planning a Date</span></div>
+    <button style="background:none;border:none;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer" onclick="backToMap()">✕</button>
+  </div>
+  <div style="overflow-y:auto;flex:1;padding:14px">
+    <div class="date-planner">
+      <div class="setup-label">📍 Choose Location</div>
+      <div class="date-option-row" id="date-loc-row"></div>
+      <div class="setup-label">👗 Your Outfit</div>
+      <div class="date-option-row" id="date-outfit-row"></div>
+      <div class="setup-label">🎁 Bring a Gift</div>
+      <div class="date-option-row" id="date-gift-row"></div>
+      <div class="setup-label">🕐 Time of Day</div>
+      <div class="date-option-row" id="date-time-row"></div>
+    </div>
+    <div class="setup-card" id="date-preview-card" style="text-align:center;">
+      <div style="color:rgba(255,255,255,.5);font-size:13px">Configure your date above 👆</div>
+    </div>
+    <button class="btn-gold" id="go-on-date-btn" onclick="goOnDate()" style="max-width:240px">💕 Go on Date!</button>
+  </div>
+</div>
+
+<!-- ===================== PHONE SCREEN ===================== -->
+<div class="screen" id="phone-screen">
+  <div class="stats-bar">
+    <div style="font-family:'Baloo 2',cursive;font-size:17px;color:var(--gold);font-weight:800;flex:1">📱 Messages</div>
+    <button class="nav-btn" onclick="switchTab('map')" style="flex:none;padding:4px 8px"><span style="font-size:18px">🗺️</span></button>
+  </div>
+  <div class="phone-contacts" id="phone-contacts"></div>
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="switchTab('map')"><span class="ni">🗺️</span><span class="nl">Map</span></button>
+    <button class="nav-btn" onclick="switchTab('skills')"><span class="ni">⚡</span><span class="nl">Skills</span></button>
+    <button class="nav-btn active" onclick="switchTab('phone')"><span class="ni">📱</span><span class="nl">Phone</span></button>
+    <button class="nav-btn" onclick="switchTab('shop')"><span class="ni">🛍️</span><span class="nl">Shop</span></button>
+    <button class="nav-btn" onclick="switchTab('journal')"><span class="ni">📔</span><span class="nl">Journal</span></button>
+    <button class="nav-btn" onclick="switchTab('ach')"><span class="ni">🏆</span><span class="nl">Awards</span></button>
+  </div>
+</div>
+
+<!-- ===================== CHAT SCREEN ===================== -->
+<div class="screen" id="chat-screen">
+  <div class="chat-header">
+    <button class="chat-back" onclick="showScreen('phone-screen')">‹</button>
+    <div class="npc-av" id="chat-av" style="width:40px;height:40px;"></div>
+    <div style="flex:1">
+      <div class="chat-name" id="chat-name"></div>
+      <div class="chat-status" id="chat-status">● Online</div>
+    </div>
+    <button onclick="openDatePlanner(state.currentNPC)" style="background:none;border:none;color:var(--gold);font-size:12px;font-weight:800;cursor:pointer">📅 Date</button>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-input-area">
+    <div class="chat-replies" id="chat-replies"></div>
+  </div>
+</div>
+
+<!-- ===================== SKILLS SCREEN ===================== -->
+<div class="screen" id="skills-screen">
+  <div class="stats-bar">
+    <div style="font-family:'Baloo 2',cursive;font-size:17px;color:var(--gold);font-weight:800;flex:1">⚡ Skill Tree</div>
+    <div style="color:var(--gold);font-weight:800;font-size:13px" id="skill-points-display">SP: 0</div>
+  </div>
+  <div style="overflow-y:auto;flex:1;padding:12px" id="skills-content"></div>
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="switchTab('map')"><span class="ni">🗺️</span><span class="nl">Map</span></button>
+    <button class="nav-btn active" onclick="switchTab('skills')"><span class="ni">⚡</span><span class="nl">Skills</span></button>
+    <button class="nav-btn" onclick="switchTab('phone')"><span class="ni">📱</span><span class="nl">Phone</span></button>
+    <button class="nav-btn" onclick="switchTab('shop')"><span class="ni">🛍️</span><span class="nl">Shop</span></button>
+    <button class="nav-btn" onclick="switchTab('journal')"><span class="ni">📔</span><span class="nl">Journal</span></button>
+    <button class="nav-btn" onclick="switchTab('ach')"><span class="ni">🏆</span><span class="nl">Awards</span></button>
+  </div>
+</div>
+
+<!-- ===================== SHOP SCREEN ===================== -->
+<div class="screen" id="shop-screen">
+  <div class="stats-bar">
+    <div style="font-family:'Baloo 2',cursive;font-size:17px;color:var(--gold);font-weight:800;flex:1">🛍️ Shop</div>
+    <div style="color:var(--gold);font-weight:800;font-size:14px">💰 <span id="wallet-display">3000</span></div>
+  </div>
+  <div style="overflow-y:auto;flex:1;padding:12px">
+    <div class="setup-label" style="margin-bottom:10px;padding-left:4px">🎁 Gifts for Her</div>
+    <div class="gift-grid" id="gift-grid"></div>
+    <div class="setup-label" style="margin:14px 0 10px;padding-left:4px">💪 Self-Improvement</div>
+    <div class="activity-list" id="activity-list"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="switchTab('map')"><span class="ni">🗺️</span><span class="nl">Map</span></button>
+    <button class="nav-btn" onclick="switchTab('skills')"><span class="ni">⚡</span><span class="nl">Skills</span></button>
+    <button class="nav-btn" onclick="switchTab('phone')"><span class="ni">📱</span><span class="nl">Phone</span></button>
+    <button class="nav-btn active" onclick="switchTab('shop')"><span class="ni">🛍️</span><span class="nl">Shop</span></button>
+    <button class="nav-btn" onclick="switchTab('journal')"><span class="ni">📔</span><span class="nl">Journal</span></button>
+    <button class="nav-btn" onclick="switchTab('ach')"><span class="ni">🏆</span><span class="nl">Awards</span></button>
+  </div>
+</div>
+
+<!-- ===================== JOURNAL SCREEN ===================== -->
+<div class="screen" id="journal-screen">
+  <div class="stats-bar">
+    <div style="font-family:'Baloo 2',cursive;font-size:17px;color:var(--gold);font-weight:800;flex:1">📔 Relationship Journal</div>
+  </div>
+  <div style="overflow-y:auto;flex:1;padding:12px" id="journal-list"></div>
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="switchTab('map')"><span class="ni">🗺️</span><span class="nl">Map</span></button>
+    <button class="nav-btn" onclick="switchTab('skills')"><span class="ni">⚡</span><span class="nl">Skills</span></button>
+    <button class="nav-btn" onclick="switchTab('phone')"><span class="ni">📱</span><span class="nl">Phone</span></button>
+    <button class="nav-btn" onclick="switchTab('shop')"><span class="ni">🛍️</span><span class="nl">Shop</span></button>
+    <button class="nav-btn active" onclick="switchTab('journal')"><span class="ni">📔</span><span class="nl">Journal</span></button>
+    <button class="nav-btn" onclick="switchTab('ach')"><span class="ni">🏆</span><span class="nl">Awards</span></button>
+  </div>
+</div>
+
+<!-- ===================== ACHIEVEMENTS SCREEN ===================== -->
+<div class="screen" id="achievements-screen">
+  <div class="stats-bar">
+    <div style="font-family:'Baloo 2',cursive;font-size:17px;color:var(--gold);font-weight:800;flex:1">🏆 Achievements</div>
+    <div style="color:rgba(255,255,255,.6);font-size:12px" id="ach-progress">0/0</div>
+  </div>
+  <div style="overflow-y:auto;flex:1;padding:12px">
+    <div class="ach-grid" id="ach-grid"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="switchTab('map')"><span class="ni">🗺️</span><span class="nl">Map</span></button>
+    <button class="nav-btn" onclick="switchTab('skills')"><span class="ni">⚡</span><span class="nl">Skills</span></button>
+    <button class="nav-btn" onclick="switchTab('phone')"><span class="ni">📱</span><span class="nl">Phone</span></button>
+    <button class="nav-btn" onclick="switchTab('shop')"><span class="ni">🛍️</span><span class="nl">Shop</span></button>
+    <button class="nav-btn" onclick="switchTab('journal')"><span class="ni">📔</span><span class="nl">Journal</span></button>
+    <button class="nav-btn active" onclick="switchTab('ach')"><span class="ni">🏆</span><span class="nl">Awards</span></button>
+  </div>
+</div>
+
+<!-- ===================== TIPS SCREEN ===================== -->
+<div class="screen" id="tips-screen">
+  <div class="stats-bar">
+    <div style="font-family:'Baloo 2',cursive;font-size:17px;color:var(--gold);font-weight:800;flex:1">💡 Dating Tips</div>
+    <button onclick="backToMap()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer">✕</button>
+  </div>
+  <div style="overflow-y:auto;flex:1;padding:12px" id="tips-content"></div>
+</div>
+
+<!-- ===================== EVENT SCREEN ===================== -->
+<div class="screen" id="event-screen">
+  <div class="stats-bar">
+    <div style="font-family:'Baloo 2',cursive;font-size:17px;color:var(--gold);font-weight:800;flex:1">🎉 Special Event</div>
+    <button onclick="backToMap()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer">✕</button>
+  </div>
+  <div style="overflow-y:auto;flex:1;padding:16px" id="event-content"></div>
+</div>
+
+</div><!-- end #app -->
+
+<script>
+// ============================================================
+// GAME DATA & STATE
+// ============================================================
+const G = {
+  player: { name:'Player', avatar:0, trait:'funny', level:1, xp:0, skillPoints:3, lang:'english' },
+  stats: { charm:50, money:60, confidence:40, intelligence:35 },
+  wallet: 3000,
+  day: 1,
+  relationships: {},
+  inventory: [],
+  skills: {},
+  achievements: {},
+  messages: {},
+  completedLocations: new Set(),
+  currentNPC: null,
+  dialogueStep: 0,
+  typingTimeout: null,
+  rivalActive: false,
+  datePlans: {},
+  lastSave: null,
+};
+
+// ============================================================
+// NPC DATA
+// ============================================================
+const NPCS = {
+  chiamaka: {
+    id:'chiamaka', name:'Chiamaka', age:24,
+    location:'Buka Restaurant', job:'Nurse 🏥',
+    interests:['Reading 📚','Gospel Music 🎵','Cooking 🍲'],
+    personality:'Gentle, smart, family-oriented',
+    mood:'😊', favGift:'flowers',
+    skinTone:'#A0522D', clothColor:'#9B59B6', headwrapColor:'#E91E63',
+    rival: { name:'Emeka', desc:'Emeka is also trying to talk to Chiamaka today. He brought suya...' },
+    memories: [],
+    dialogue: {
+      english: [
+        { text:"Good afternoon! Can I help you? You look a little lost...", choices:[
+          { text:"I'm not lost — I was looking for you 😊", type:'good', cd:8, st:1, lesson:"Confidence with warmth opens doors." },
+          { text:"Yeah, I'm new here. Can you recommend something?", type:'neutral', cd:4, st:1, lesson:"Being genuine works too." },
+          { text:"Mind your business!", type:'bad', cd:-12, st:'fail', lesson:"Rudeness never wins." },
+        ]},
+        { text:"Haha! Smooth talker! I'm Chiamaka. I come here every Saturday. What's your name?", choices:[
+          { text:"Tell her your name and ask about her week", type:'good', cd:8, st:2, lesson:"Reciprocating shows genuine interest." },
+          { text:"Just say your name", type:'neutral', cd:3, st:2, lesson:"Simple but works." },
+          { text:"Ask for her number immediately", type:'bad', cd:-8, st:'tooFast', lesson:"Too soon! Build connection first." },
+        ]},
+        { text:"Oh wow, you're really easy to talk to! My shift ends at 5, I was going to the market after...", choices:[
+          { text:"Offer to walk with her to the market", type:'good', cd:10, st:'minigame', lesson:"Taking initiative shows interest." },
+          { text:"Say that sounds nice and wish her well", type:'neutral', cd:5, st:3, lesson:"Polite, but a missed opportunity." },
+          { text:"Ask if she has a boyfriend first", type:'bad', cd:-5, st:3, lesson:"That question too early creates pressure." },
+        ]},
+        { text:"I really enjoyed today. You're different from the guys who usually approach me.", choices:[
+          { text:"I'd love to know you better. Can we exchange numbers?", type:'good', cd:15, st:'success', lesson:"Clear, respectful intention." },
+          { text:"Thank her and say you hope to see her again", type:'neutral', cd:8, st:'success', lesson:"Leaving things open is also fine." },
+        ]},
+      ],
+      pidgin: [
+        { text:"Good afternoon! How far? You dey find something?", choices:[
+          { text:"I dey find you nah! 😊", type:'pidgin', cd:10, st:1, lesson:"Pidgin adds warmth and personality." },
+          { text:"Abeg help me, I no sabi this place well", type:'neutral', cd:4, st:1, lesson:"Honesty dey work." },
+          { text:"Comot for road!", type:'bad', cd:-12, st:'fail', lesson:"Disrespect no go take you anywhere." },
+        ]},
+        { text:"Haha! You dey do me shakara! I be Chiamaka. I dey come here every Saturday. Wetin be your name?", choices:[
+          { text:"Tell am your name and ask how her week be", type:'good', cd:8, st:2, lesson:"Show interest, e dey matter." },
+          { text:"Just tell am your name", type:'neutral', cd:3, st:2 },
+          { text:"Abeg give me your number first", type:'bad', cd:-8, st:'tooFast', lesson:"Too fast! Make connection first." },
+        ]},
+        { text:"Chai! You too dey talk sweet! My shift go end 5 o'clock, I wan go market after...", choices:[
+          { text:"I go follow you na, make sure you dey safe", type:'good', cd:12, st:'minigame', lesson:"Showing care na power move." },
+          { text:"Okay o, greet market for me", type:'neutral', cd:4, st:3 },
+          { text:"You get boyfriend?", type:'bad', cd:-5, st:3, lesson:"That question too quick." },
+        ]},
+        { text:"Chai, I enjoy today wella. You different from those other guys wey dey approach me.", choices:[
+          { text:"I wan know you well well. We fit exchange number?", type:'pidgin', cd:15, st:'success', lesson:"Clear intention with respect." },
+          { text:"E dey nice meeting you, I hope to see you again", type:'neutral', cd:8, st:'success' },
+        ]},
+      ],
+    },
+    minigame: {
+      title:"Market Walk ❤️", timer:12,
+      sub:"She mentions she loves gospel music. What do you say?",
+      options:[
+        {emoji:'🎵',text:'Ask her favorite artist and genuinely share yours',correct:true},
+        {emoji:'😏',text:'Brag that you can sing for her tonight',correct:false},
+        {emoji:'📱',text:'Google "gospel music" to impress her',correct:false},
+        {emoji:'🤝',text:'Admit you\'re not expert but want to learn',correct:true},
+      ]
+    },
+    phoneConvo: [
+      { from:'npc', text:"Hi! It's Chiamaka 😊 I'm glad we exchanged numbers." },
+      { from:'player', replies:[
+        { text:"Me too! I've been thinking about you.", boost:8 },
+        { text:"Same! How was your day at the hospital?", boost:12 },
+        { text:"Yeah... cool.", boost:2 },
+      ]},
+      { from:'npc', text:"Today was long but rewarding. One patient called me his 'sunshine' 😂" },
+      { from:'player', replies:[
+        { text:"You're my sunshine too 🌞", boost:10 },
+        { text:"That's beautiful! You must be amazing at your job.", boost:15 },
+        { text:"Aww... nice I guess.", boost:3 },
+      ]},
+      { from:'npc', text:"Haha stop it! But seriously... would you want to come to church with me Sunday?" },
+      { from:'player', replies:[
+        { text:"I'd love that. What time? 🙏", boost:18 },
+        { text:"I'll try to make it work!", boost:10 },
+        { text:"Maybe... I'll see.", boost:2 },
+      ]},
+    ],
+    trivia: { q:"What does 'Nne' mean in Igbo?", opts:["Sister","Mother/Dear","Friend","Wife"], correct:1 },
+  },
+
+  amaka: {
+    id:'amaka', name:'Amaka', age:22,
+    location:'University Campus', job:'Law Student ⚖️',
+    interests:['Debate 🗣️','Afrobeats 🎶','Fashion 👗'],
+    personality:'Confident, witty, direct',
+    mood:'😤', favGift:'perfume',
+    skinTone:'#6B3A2A', clothColor:'#E91E63', headwrapColor:'#FFD700',
+    rival:{ name:'Dayo', desc:'Dayo is charming and also pursuing Amaka. He just got a new car...' },
+    memories:[],
+    dialogue: {
+      english:[
+        { text:"Excuse me, you just bumped into my books! Do you always walk around like you own the place?", choices:[
+          { text:"I'm so sorry! Let me help pick those up.", type:'good', cd:8, st:1, lesson:"Owning a mistake shows character." },
+          { text:"My bad. You okay?", type:'neutral', cd:4, st:1 },
+          { text:"Why were your books in the way?", type:'bad', cd:-12, st:'fail', lesson:"Defensiveness kills attraction." },
+        ]},
+        { text:"Hmm, a gentleman. Rare these days. I'm Amaka, 200 level Law.", choices:[
+          { text:"No, I'm here to improve myself — just like you", type:'good', cd:10, st:2, lesson:"Matching her ambition energy works." },
+          { text:"I have my reasons for being here...", type:'neutral', cd:5, st:2 },
+          { text:"What if I am? Problem?", type:'bad', cd:-6, st:2 },
+        ]},
+        { text:"I'm on my way to debate practice. Can you hold a real conversation?", choices:[
+          { text:"Challenge accepted. What's the topic?", type:'good', cd:12, st:'minigame', lesson:"Confidence attracts confidence." },
+          { text:"I try my best! What's your debate about?", type:'neutral', cd:6, st:3 },
+          { text:"I don't really do debates...", type:'bad', cd:-4, st:3 },
+        ]},
+        { text:"You know what? You're actually interesting. Most guys get intimidated by me. Coffee sometime?", choices:[
+          { text:"I'd love that. Here's my number, text me.", type:'good', cd:15, st:'success' },
+          { text:"Sure! When works for you?", type:'good', cd:12, st:'success' },
+        ]},
+      ],
+      pidgin:[
+        { text:"Oga! You just scatter my books! You blind?", choices:[
+          { text:"Ah, sorry sorry! Make I help you pick dem.", type:'good', cd:8, st:1, lesson:"Apologize quickly, e show maturity." },
+          { text:"My mistake. You dey okay?", type:'neutral', cd:4, st:1 },
+          { text:"Why you put your books there?", type:'bad', cd:-12, st:'fail' },
+        ]},
+        { text:"Hmm. You get sense small. I be Amaka, Law 200 level.", choices:[
+          { text:"I sabi. I too dey hustle to better myself, like you.", type:'good', cd:10, st:2 },
+          { text:"I get my reasons for dey here...", type:'neutral', cd:5, st:2 },
+          { text:"Wetin concern you?", type:'bad', cd:-6, st:2 },
+        ]},
+        { text:"I dey go debate practice. You sabi talk talk?", choices:[
+          { text:"Try me nah! Wetin be the topic?", type:'pidgin', cd:13, st:'minigame' },
+          { text:"I dey try. Wetin una go debate?", type:'neutral', cd:6, st:3 },
+          { text:"Debate no be my thing...", type:'bad', cd:-4, st:3 },
+        ]},
+        { text:"You actually interesting sha. Most guys dey fear me. We go drink coffee?", choices:[
+          { text:"I no go fear you. Here my number.", type:'pidgin', cd:15, st:'success' },
+          { text:"Any time! When you free?", type:'good', cd:12, st:'success' },
+        ]},
+      ],
+    },
+    minigame:{
+      title:"Debate Round 🗣️", timer:10,
+      sub:"She asks your view on relationships. Best response?",
+      options:[
+        {emoji:'🤝',text:'Express genuine values about respect and partnership',correct:true},
+        {emoji:'😎',text:'Brag about your past relationships',correct:false},
+        {emoji:'🙊',text:'Say "whatever she wants to hear"',correct:false},
+        {emoji:'💭',text:'Ask her view first, then share yours thoughtfully',correct:true},
+      ]
+    },
+    phoneConvo:[
+      { from:'npc', text:"It's Amaka. You actually remembered to text first. Impressive." },
+      { from:'player', replies:[
+        { text:"Of course. A man of his word 😎", boost:10 },
+        { text:"I said I would! How was debate practice?", boost:14 },
+        { text:"Yeah, I was in the area...", boost:2 },
+      ]},
+      { from:'npc', text:"We won! I argued the side I personally disagree with. That's the real test." },
+      { from:'player', replies:[
+        { text:"That takes real intelligence. I'm impressed.", boost:15 },
+        { text:"I could never do that. You're built different.", boost:12 },
+        { text:"Cool. Which side?", boost:3 },
+      ]},
+      { from:'npc', text:"What do you actually want from this, by the way? Be honest." },
+      { from:'player', replies:[
+        { text:"Something real. I don't do games.", boost:18 },
+        { text:"To know you better — you fascinate me.", boost:16 },
+        { text:"Just vibing for now...", boost:1 },
+      ]},
+    ],
+    trivia:{ q:"Which city is Nigeria's commercial capital?", opts:["Abuja","Lagos","Kano","Port Harcourt"], correct:1 },
+  },
+
+  ngozi: {
+    id:'ngozi', name:'Ngozi', age:27,
+    location:'Tech Hub', job:'Software Developer 💻',
+    interests:['Coding 💻','Chess ♟️','Jollof Rice 🍚'],
+    personality:'Analytical, ambitious, independent',
+    mood:'🤔', favGift:'book',
+    skinTone:'#8B4513', clothColor:'#2196F3', headwrapColor:'#FF9800',
+    rival:{ name:'Tunde', desc:'Tunde works at the same tech company as Ngozi and is very smooth...' },
+    memories:[],
+    dialogue:{
+      english:[
+        { text:"Oh, are you here for the tech meetup? I'm actually the speaker today.", choices:[
+          { text:"Wow, I'd love to hear your talk! What's the topic?", type:'good', cd:10, st:1, lesson:"Genuine curiosity is magnetic." },
+          { text:"Cool. Yeah, I'm here for the meetup.", type:'neutral', cd:4, st:1 },
+          { text:"You? The speaker? Interesting.", type:'bad', cd:-10, st:'fail', lesson:"Doubt and surprise about women in tech is harmful." },
+        ]},
+        { text:"Women in tech in Nigeria — it's a passion project. What do you do?", choices:[
+          { text:"Share genuinely and show interest in her mission", type:'good', cd:10, st:2, lesson:"Showing you stand for something attracts her." },
+          { text:"Tell her what you do", type:'neutral', cd:4, st:2 },
+          { text:"Pivot — 'Let's talk about you instead'", type:'bad', cd:-5, st:2 },
+        ]},
+        { text:"Refreshing to meet someone who engages with ideas! Coffee after my talk?", choices:[
+          { text:"Absolutely! I'll wait for you.", type:'good', cd:12, st:'minigame', lesson:"Patience and commitment show character." },
+          { text:"Sure! Should I grab you one now?", type:'good', cd:10, st:'minigame' },
+          { text:"Depends on how long the talk is...", type:'bad', cd:-8, st:3 },
+        ]},
+        { text:"You waited! I like that. What are you actually looking for?", choices:[
+          { text:"Something genuine. I take relationships seriously.", type:'good', cd:15, st:'success' },
+          { text:"Just seeing where things go for now", type:'neutral', cd:6, st:'success' },
+        ]},
+      ],
+      pidgin:[
+        { text:"Ehen, you come for the tech meetup? I be the one wey go talk today.", choices:[
+          { text:"For real? Omo, wetin you go talk about?", type:'pidgin', cd:10, st:1 },
+          { text:"Yeah I dey here for the meetup.", type:'neutral', cd:4, st:1 },
+          { text:"You? Oya talk!", type:'bad', cd:-10, st:'fail' },
+        ]},
+        { text:"Women in tech for Naija — e be my passion. Wetin you do?", choices:[
+          { text:"Share your work and show say you care about her mission", type:'good', cd:10, st:2 },
+          { text:"Tell am wetin you do", type:'neutral', cd:4, st:2 },
+          { text:"Forget that — tell me more about you", type:'bad', cd:-5, st:2 },
+        ]},
+        { text:"Chai, I dey enjoy this talk! Make we drink coffee after my presentation?", choices:[
+          { text:"I go wait for you. Take your time.", type:'good', cd:12, st:'minigame' },
+          { text:"Yes! I go order your cup now?", type:'good', cd:10, st:'minigame' },
+          { text:"How long your talk go take?", type:'bad', cd:-8, st:3 },
+        ]},
+        { text:"You wait o! I like that. Wetin you really want from this?", choices:[
+          { text:"Something real. I no dey do games.", type:'pidgin', cd:15, st:'success' },
+          { text:"I dey see where things go", type:'neutral', cd:6, st:'success' },
+        ]},
+      ],
+    },
+    minigame:{
+      title:"Coffee Chat ☕", timer:11,
+      sub:"She asks if you support women in leadership. Best response?",
+      options:[
+        {emoji:'✊',text:'Give a real, specific answer showing genuine thought',correct:true},
+        {emoji:'😅',text:'"Of course! I love women."',correct:false},
+        {emoji:'🤔',text:'Ask what inspired her — then share your view',correct:true},
+        {emoji:'📊',text:'Recite random statistics to sound smart',correct:false},
+      ]
+    },
+    phoneConvo:[
+      { from:'npc', text:"Hey! Ngozi here. I've been thinking about our conversation." },
+      { from:'player', replies:[
+        { text:"Same! You left quite an impression.", boost:10 },
+        { text:"Me too. You're really inspiring.", boost:14 },
+        { text:"What about it?", boost:2 },
+      ]},
+      { from:'npc', text:"I'm building an app for Nigerian women entrepreneurs. It's going to be huge." },
+      { from:'player', replies:[
+        { text:"That's incredible! How can I support?", boost:16 },
+        { text:"Tell me everything. What's the concept?", boost:18 },
+        { text:"Nice. Hope it works out.", boost:3 },
+      ]},
+      { from:'npc', text:"I need beta testers. Would you be interested? I also... want to see you again.", remarks:'😊' },
+      { from:'player', replies:[
+        { text:"Both — absolutely. When and where?", boost:20 },
+        { text:"Of course! Send me the details.", boost:15 },
+        { text:"Sure, just send a link.", boost:5 },
+      ]},
+    ],
+    trivia:{ q:"What does 'Jollof' refer to in West African cuisine?", opts:["A cooking method","A spiced rice dish","A type of fish stew","A dessert"], correct:1 },
+  },
+
+  titi: {
+    id:'titi', name:'Titilayo', age:25,
+    location:'Church Compound', job:'Fashion Designer 👗',
+    interests:['Fashion 🧵','Prayer 🙏','Dancing 💃'],
+    personality:'Warm, creative, family-values',
+    mood:'😇', favGift:'flowers',
+    skinTone:'#C68642', clothColor:'#4CAF50', headwrapColor:'#FF5722',
+    rival:{ name:'Pastor Segun', desc:'Pastor Segun\'s son has been admiring Titilayo and her parents approve of him...' },
+    memories:[],
+    dialogue:{
+      english:[
+        { text:"Hello! I haven't seen you here before. Are you new to this area?", choices:[
+          { text:"Yes! Just moved nearby. It's a beautiful community.", type:'good', cd:8, st:1, lesson:"Positivity and openness invite connection." },
+          { text:"Sort of. I came with a friend.", type:'neutral', cd:4, st:1 },
+          { text:"I come whenever I feel like it.", type:'bad', cd:-6, st:1 },
+        ]},
+        { text:"How lovely! I'm Titilayo — I make all the choir robes here! Small business but I love it.", choices:[
+          { text:"That's amazing! Entrepreneurship and creativity — I respect that.", type:'good', cd:10, st:2, lesson:"Celebrating her work shows respect." },
+          { text:"Oh nice, so you sew?", type:'neutral', cd:3, st:2 },
+          { text:"Can you make me something?", type:'bad', cd:-5, st:2, lesson:"Don't make it about you so quickly." },
+        ]},
+        { text:"I want to grow it into a full atelier one day. My mama thinks I should find a husband first...", choices:[
+          { text:"Your career ambition makes you even more attractive, honestly", type:'good', cd:12, st:'minigame', lesson:"Supporting her dreams is powerful." },
+          { text:"What do YOU want?", type:'good', cd:10, st:'minigame', lesson:"Asking her own opinion empowers her." },
+          { text:"Your mama has a point...", type:'bad', cd:-10, st:3, lesson:"Never dismiss her ambitions." },
+        ]},
+        { text:"Nobody ever asked me that! You know what... here's my number. Let's talk more.", choices:[
+          { text:"Thank you, Titilayo. I'll reach out.", type:'good', cd:15, st:'success' },
+          { text:"I'm saving it right now!", type:'good', cd:12, st:'success' },
+        ]},
+      ],
+      pidgin:[
+        { text:"Hello! I never see you here before. You be new person for here?", choices:[
+          { text:"Yes! I just move come. E dey fine here sha.", type:'good', cd:8, st:1 },
+          { text:"Hmm, I follow friend come.", type:'neutral', cd:4, st:1 },
+          { text:"I dey come whenever I feel like.", type:'bad', cd:-6, st:1 },
+        ]},
+        { text:"Nice to meet you! I be Titilayo — I sew all the choir clothes for this church! Small work but I love am.", choices:[
+          { text:"Ehn! Entrepreneur and creative — I hail you!", type:'pidgin', cd:11, st:2 },
+          { text:"Oh, so you be tailor?", type:'neutral', cd:3, st:2 },
+          { text:"You fit sew something for me?", type:'bad', cd:-5, st:2 },
+        ]},
+        { text:"I wan make am big one day. But my mama say make I find husband first...", choices:[
+          { text:"Forget that! Your ambition make you fine pass any agbada!", type:'pidgin', cd:13, st:'minigame' },
+          { text:"But wetin YOU want?", type:'good', cd:10, st:'minigame' },
+          { text:"Your mama get point sha...", type:'bad', cd:-10, st:3 },
+        ]},
+        { text:"Nobody ever ask me that question! Oya, collect my number. Make we talk more.", choices:[
+          { text:"I go call you tomorrow, I promise.", type:'good', cd:15, st:'success' },
+          { text:"I don save am! 😊", type:'good', cd:12, st:'success' },
+        ]},
+      ],
+    },
+    minigame:{
+      title:"Design Studio 🎨", timer:12,
+      sub:"She shows you her fabric designs. How do you react?",
+      options:[
+        {emoji:'👀',text:'Ask about the design process and inspiration',correct:true},
+        {emoji:'😬',text:'Say you prefer simpler, plainer styles',correct:false},
+        {emoji:'💰',text:'Ask immediately how much she charges',correct:false},
+        {emoji:'🌟',text:'Genuinely compliment the craftsmanship and color choices',correct:true},
+      ]
+    },
+    phoneConvo:[
+      { from:'npc', text:"Hello! It's Titi 😊 Thank you for talking to me today. Not many people ask about my work." },
+      { from:'player', replies:[
+        { text:"Your work deserves to be celebrated.", boost:14 },
+        { text:"Of course! You're talented. I can tell.", boost:12 },
+        { text:"No problem at all.", boost:3 },
+      ]},
+      { from:'npc', text:"I'm working on a collection inspired by Aso-Oke patterns. Would you want to see it?" },
+      { from:'player', replies:[
+        { text:"I would love that! You're going to be famous one day.", boost:16 },
+        { text:"Please! Send me photos or let's meet.", boost:18 },
+        { text:"Sure, share pics.", boost:4 },
+      ]},
+      { from:'npc', text:"You're really sweet 🌸 My family would like you. That's not easy to say..." },
+      { from:'player', replies:[
+        { text:"That means everything to me, truly.", boost:20 },
+        { text:"I hope to earn that honor properly.", boost:18 },
+        { text:"Haha, they haven't met me yet!", boost:8 },
+      ]},
+    ],
+    trivia:{ q:"What is 'Aso-Oke' in Yoruba culture?", opts:["A type of food","A traditional woven fabric","A wedding ceremony","A dance style"], correct:1 },
+  },
+
+  bisi: {
+    id:'bisi', name:'Bisi', age:23,
+    location:'Shoprite Mall', job:'Marketing Executive 📈',
+    interests:['Photography 📸','Suya 🍖','Afrobeats 🎵'],
+    personality:'Outgoing, fun, social butterfly',
+    mood:'🤩', favGift:'jewelry',
+    skinTone:'#7B4F2E', clothColor:'#FF5252', headwrapColor:'#00BCD4',
+    rival:{ name:'DJ Kolade', desc:'DJ Kolade is famous locally and just invited Bisi to his show...' },
+    memories:[],
+    dialogue:{
+      english:[
+        { text:"OH MY GOD, they're playing Burna Boy in Shoprite?! This is literally my song!", choices:[
+          { text:"Right?! Which album is your favorite?", type:'good', cd:10, st:1, lesson:"Matching her energy creates instant connection." },
+          { text:"*smiles* You've got great taste.", type:'good', cd:8, st:1 },
+          { text:"It's too loud in here honestly...", type:'bad', cd:-8, st:'fail', lesson:"Killing her joy kills your chances." },
+        ]},
+        { text:"You know Burna?? I'm OBSESSED. I'm Bisi! Sorry, I get excited.", choices:[
+          { text:"Don't apologize — passion is attractive!", type:'good', cd:10, st:2, lesson:"Validating her personality is key." },
+          { text:"Ha, I can tell. I'm [name].", type:'neutral', cd:5, st:2 },
+          { text:"A little bit yeah, but it's okay.", type:'bad', cd:-5, st:2 },
+        ]},
+        { text:"I'm shooting photos at Lekki Conservation tomorrow. I always go alone but...", choices:[
+          { text:"I'd love to join if you're open to company!", type:'good', cd:12, st:'minigame', lesson:"Showing interest in her passion is huge." },
+          { text:"Photography sounds cool!", type:'neutral', cd:5, st:3 },
+          { text:"You go alone? Isn't that dangerous?", type:'bad', cd:-6, st:3, lesson:"Don't make her feel incapable." },
+        ]},
+        { text:"Come prepared — comfortable shoes, 6am. You in?", choices:[
+          { text:"Challenge accepted. Send me the location.", type:'good', cd:15, st:'success' },
+          { text:"I'm already setting my alarm. Deal!", type:'good', cd:14, st:'success' },
+        ]},
+      ],
+      pidgin:[
+        { text:"MEHN! Shoprite dey play Burna Boy?! This na my song!", choices:[
+          { text:"You know Burna? Which album you love pass?", type:'pidgin', cd:10, st:1 },
+          { text:"*smile* Your taste dey mad.", type:'good', cd:8, st:1 },
+          { text:"The music too loud sha...", type:'bad', cd:-8, st:'fail' },
+        ]},
+        { text:"You sabi Burna?! I dey mad for him! I be Bisi! Sorry I too dey hype.", choices:[
+          { text:"No apologize! Passion na the thing I like most.", type:'good', cd:11, st:2 },
+          { text:"Ha, I see. I be [name].", type:'neutral', cd:5, st:2 },
+          { text:"Haha, small small.", type:'bad', cd:-5, st:2 },
+        ]},
+        { text:"I wan go snap photos for Lekki tomorrow morning. I dey always go alone but...", choices:[
+          { text:"Make I follow you na! I dey free.", type:'pidgin', cd:13, st:'minigame' },
+          { text:"Photography! E dey nice.", type:'neutral', cd:5, st:3 },
+          { text:"You go alone? E no safe?", type:'bad', cd:-6, st:3 },
+        ]},
+        { text:"Wear comfy shoes, dey ready by 6am. You dey in?", choices:[
+          { text:"I don ready! Send location.", type:'pidgin', cd:15, st:'success' },
+          { text:"My alarm don set! E don do.", type:'good', cd:14, st:'success' },
+        ]},
+      ],
+    },
+    minigame:{
+      title:"Playlist Battle 🎵", timer:10,
+      sub:"She asks you to pick a song for a joint playlist. Best choice?",
+      options:[
+        {emoji:'🎵',text:'Pick something she mentioned she loves',correct:true},
+        {emoji:'😎',text:'Play only your music to show off your taste',correct:false},
+        {emoji:'🎧',text:'Ask what mood she\'s in, then decide together',correct:true},
+        {emoji:'📱',text:'Let Spotify shuffle decide',correct:false},
+      ]
+    },
+    phoneConvo:[
+      { from:'npc', text:"Bisi here 📸 Still thinking about our conversation! Lagos needs more people like you." },
+      { from:'player', replies:[
+        { text:"Lagos needs more people like YOU 😄", boost:12 },
+        { text:"That's the nicest thing! How's the photography going?", boost:14 },
+        { text:"Haha thanks! Same.", boost:4 },
+      ]},
+      { from:'npc', text:"Just got back from Lekki! The sunrise was INSANE. Wish you were there." },
+      { from:'player', replies:[
+        { text:"Next time — I'm coming. I mean it.", boost:16 },
+        { text:"Show me the photos! I need to see this.", boost:18 },
+        { text:"Sounds nice!", boost:4 },
+      ]},
+      { from:'npc', text:"There will be a next time? 😊 I like that confidence." },
+      { from:'player', replies:[
+        { text:"Count on it. I don't say things I don't mean.", boost:20 },
+        { text:"Of course! You're worth showing up for.", boost:18 },
+        { text:"Yeah, maybe 😂", boost:6 },
+      ]},
+    ],
+    trivia:{ q:"What is 'Suya'?", opts:["A Yoruba greeting","Spiced grilled meat on skewers","A type of fabric","A traditional dance"], correct:1 },
+  },
+};
+
+const LOCATIONS = [
+  { id:'chiamaka', label:'Buka Restaurant', emoji:'🍲', color:'#FF5722', x:'18%', y:'32%' },
+  { id:'amaka',    label:'Uni Campus',       emoji:'🎓', color:'#9C27B0', x:'62%', y:'18%' },
+  { id:'ngozi',    label:'Tech Hub',         emoji:'💻', color:'#2196F3', x:'72%', y:'52%' },
+  { id:'titi',     label:'Church',           emoji:'⛪', color:'#4CAF50', x:'28%', y:'63%' },
+  { id:'bisi',     label:'Mall',             emoji:'🛍️', color:'#E91E63', x:'52%', y:'78%' },
+];
+
+const SCENE_BGS = {
+  chiamaka:'linear-gradient(180deg,#87CEEB 0%,#DEB887 55%,#8B6914 100%)',
+  amaka:'linear-gradient(180deg,#87CEEB 0%,#90EE90 55%,#228B22 100%)',
+  ngozi:'linear-gradient(180deg,#1a1a2e 0%,#16213e 55%,#0a0a1a 100%)',
+  titi:'linear-gradient(180deg,#87CEEB 0%,#F5DEB3 55%,#8B6914 100%)',
+  bisi:'linear-gradient(180deg,#FFB6C1 0%,#DDA0DD 55%,#9370DB 100%)',
+};
+
+const GIFTS = [
+  { id:'flowers', emoji:'💐', name:'Flowers', price:200, boost:12, likes:['chiamaka','titi'] },
+  { id:'chocolate', emoji:'🍫', name:'Chocolate', price:300, boost:10, likes:['bisi','chiamaka'] },
+  { id:'perfume', emoji:'🧴', name:'Perfume', price:800, boost:18, likes:['amaka','bisi'] },
+  { id:'jewelry', emoji:'💍', name:'Bracelet', price:1500, boost:25, likes:['bisi','titi'] },
+  { id:'book', emoji:'📚', name:'Book', price:400, boost:20, likes:['ngozi','amaka'] },
+  { id:'suya', emoji:'🍖', name:'Suya Pack', price:150, boost:14, likes:['bisi','chiamaka'] },
+];
+
+const ACTIVITIES = [
+  { id:'gym', emoji:'🏋️', name:'Hit the Gym', desc:'+15 Confidence', effect:{confidence:15}, cost:0, time:'1 Day' },
+  { id:'read', emoji:'📖', name:'Read a Book', desc:'+15 Intelligence', effect:{intelligence:15}, cost:0, time:'1 Day' },
+  { id:'styling', emoji:'👔', name:'Style Consultation', desc:'+20 Charm', effect:{charm:20}, cost:500, time:'Same Day' },
+  { id:'work', emoji:'💼', name:'Side Hustle', desc:'+500 Naira', effect:{wallet:500}, cost:0, time:'1 Day' },
+  { id:'cook', emoji:'🍳', name:'Take Cooking Class', desc:'+10 Charm, +10 Intelligence', effect:{charm:10,intelligence:10}, cost:300, time:'1 Day' },
+  { id:'pray', emoji:'🙏', name:'Morning Devotion', desc:'+8 all stats', effect:{charm:8,confidence:8}, cost:0, time:'Free' },
+];
+
+const SKILLS_TREE = [
+  { id:'smooth_talker', name:'Smooth Talker', icon:'🗣️', desc:'Unlocks extra dialogue options', cost:2, requires:null, category:'Social' },
+  { id:'active_listener', name:'Active Listener', icon:'👂', desc:'Charm boost +15 on all good choices', cost:2, requires:null, category:'Social' },
+  { id:'fashion_sense', name:'Fashion Sense', icon:'👔', desc:'All interactions start with +10 Interest', cost:3, requires:'smooth_talker', category:'Social' },
+  { id:'comedian', name:'Natural Comedian', icon:'😂', desc:'Funny choices get double charm boost', cost:2, requires:null, category:'Personality' },
+  { id:'gentleman', name:'True Gentleman', icon:'🎩', desc:'Apology choices always work perfectly', cost:2, requires:'active_listener', category:'Personality' },
+  { id:'ambitious', name:'Visibly Ambitious', icon:'🚀', desc:'Boost interest with career-focused girls', cost:3, requires:'gentleman', category:'Personality' },
+  { id:'gift_giver', name:'Gift Master', icon:'🎁', desc:'Gifts give 50% more interest boost', cost:2, requires:null, category:'Resources' },
+  { id:'negotiator', name:'Negotiator', icon:'💰', desc:'Shop prices 20% cheaper', cost:2, requires:'gift_giver', category:'Resources' },
+  { id:'hustler', name:'Hustler', icon:'💼', desc:'Work earns double money', cost:3, requires:'negotiator', category:'Resources' },
+];
+
+const ACHIEVEMENTS_DEF = [
+  { id:'first_hello', badge:'👋', title:'First Hello', desc:'Meet your first NPC', trigger:'meet_1' },
+  { id:'smooth_criminal', badge:'😎', title:'Smooth Criminal', desc:'Get 5 good choices in a row', trigger:'good_streak_5' },
+  { id:'collector', badge:'💐', title:'Gift Giver', desc:'Buy 3 gifts', trigger:'buy_3_gifts' },
+  { id:'level5', badge:'⭐', title:'Rising Star', desc:'Reach Level 5', trigger:'level_5' },
+  { id:'all_met', badge:'🤝', title:'Social Butterfly', desc:'Meet all 5 characters', trigger:'meet_all' },
+  { id:'first_number', badge:'📱', title:'Digits!', desc:'Get a phone number', trigger:'first_number' },
+  { id:'skilled', badge:'⚡', title:'Skill Master', desc:'Unlock 5 skills', trigger:'unlock_5_skills' },
+  { id:'trivia_ace', badge:'🧠', title:'Naija Genius', desc:'Answer 3 trivia correctly', trigger:'trivia_3' },
+  { id:'pidgin_pro', badge:'🇳🇬', title:'Pidgin Pro', desc:'Complete a full convo in Pidgin', trigger:'pidgin_complete' },
+  { id:'date_master', badge:'💕', title:'Date Master', desc:'Plan a perfect date', trigger:'perfect_date' },
+  { id:'rich', badge:'💰', title:'Big Boy', desc:'Have 5000 naira', trigger:'wallet_5000' },
+  { id:'partner', badge:'❤️', title:'Naija Lover', desc:'Reach Partner status with someone', trigger:'partner_status' },
+  { id:'all_dates', badge:'🌹', title:'Romantic', desc:'Date all 5 characters', trigger:'date_all' },
+  { id:'loyal', badge:'🔒', title:'Loyal Heart', desc:'Reject rival 3 times', trigger:'reject_rival_3' },
+  { id:'century', badge:'💯', title:'Charm King', desc:'Max charm to 100', trigger:'charm_100' },
+];
+
+const TIPS_DATA = [
+  { icon:'🤝', title:'Respect is Everything', body:"A Nigerian woman values being treated with dignity. No matter your charm or wealth, disrespect is an instant deal-breaker. Greet her warmly, listen when she speaks, and never make her feel small." },
+  { icon:'👨‍👩‍👧‍👦', title:'Family Matters', body:"In Nigeria, you're not just dating one person — you're entering a whole family. Show genuine interest in her family and background. Asking about her parents and showing good family values goes a long way." },
+  { icon:'🗣️', title:'Communication is King', body:"Don't play games with your intentions. Nigerian women appreciate men who are clear about what they want. If you're interested, say so respectfully. If things change, communicate honestly." },
+  { icon:'💰', title:'Ambition Attracts', body:"You don't have to be rich, but you need direction. Showing that you're working toward something — a career, business, education — signals you're serious about life. Women respect effort and vision." },
+  { icon:'🕌', title:'Understand Her Values', body:"Nigeria is deeply spiritual. Regardless of your own beliefs, respect her faith. Attending church/mosque with her, or simply not mocking what she holds sacred, shows deep respect for who she is." },
+  { icon:'😂', title:'Humor Opens Doors', body:"A good sense of humor is universally attractive. Nigerian humor is rich — learn to laugh genuinely and make her laugh without putting others down. Don't try too hard though; authenticity wins." },
+  { icon:'🎯', title:'Be Intentional', body:"If you're serious, make it known at the right time. Nigerian women often prefer men who are clear about pursuing a serious relationship rather than just 'hanging out' indefinitely." },
+  { icon:'🌹', title:'Little Gestures Win Hearts', body:"It doesn't have to be expensive. Remembering what she told you, checking in when she's stressed, bringing food she mentioned she likes — these small things build genuine connection." },
+  { icon:'👂', title:'Listen First, Talk Second', body:"Ask her questions and genuinely listen. Don't just wait for your turn to speak. The ability to make a woman feel heard and understood is incredibly powerful and rare." },
+  { icon:'✅', title:'Consistency is King', body:"Showing up consistently — keeping your word, following through on plans, maintaining the same energy — is what separates serious men from those passing through. Be reliable." },
+  { icon:'🇳🇬', title:'Embrace the Culture', body:"Learning Pidgin, appreciating Afrobeats, eating the food — these aren't just social points. They show genuine love for her world. You don't have to fake it — just be curious and open." },
+  { icon:'⏳', title:'Patience is Virtue', body:"Don't rush stages. Going from stranger to close friend to crush to partner takes time and genuine effort. Pressure kills attraction. Let things develop naturally and enjoy each phase." },
+];
+
+const EVENTS = [
+  { id:'independence', emoji:'🇳🇬', title:'Independence Day!', desc:'October 1st — All NPCs have special greetings today and interest is boosted by 20%! Visit a location to celebrate together.', bonus:{charm:10,allInterest:20} },
+  { id:'eid', emoji:'🌙', title:'Sallah Celebration!', desc:'Eid Mubarak! Share in the celebration. Visiting Amaka today means joining her family gathering — a huge trust boost.', npc:'amaka', bonus:{interest:30} },
+  { id:'christmas', emoji:'🎄', title:'Merry Christmas!', desc:'Season of love! All gifts cost 50% less today and interest boosts from gifts are doubled!', bonus:{giftDiscount:0.5} },
+];
+
+const DATE_OPTIONS = {
+  locations:[
+    {id:'restaurant',emoji:'🍽️',label:'Nice Restaurant',score:3,cost:1000},
+    {id:'park',emoji:'🌳',label:'Park Walk',score:2,cost:0},
+    {id:'cinema',emoji:'🎬',label:'Cinema',score:2,cost:600},
+    {id:'beach',emoji:'🏖️',label:'Bar Beach',score:3,cost:200},
+    {id:'home',emoji:'🏠',label:'Cook at Home',score:4,cost:300},
+  ],
+  outfits:[
+    {id:'agbada',emoji:'👘',label:'Agbada (Traditional)',score:3},
+    {id:'smart',emoji:'👔',label:'Smart Casual',score:2},
+    {id:'casual',emoji:'👕',label:'Casual',score:1},
+    {id:'dashiki',emoji:'🧡',label:'Dashiki',score:3},
+  ],
+  gifts:[
+    {id:'none',emoji:'🤷',label:'No Gift',score:0},
+    {id:'flowers',emoji:'💐',label:'Flowers',score:2,cost:200},
+    {id:'chocolates',emoji:'🍫',label:'Chocolates',score:2,cost:300},
+    {id:'jewelry',emoji:'💍',label:'Jewelry',score:4,cost:1500},
+  ],
+  times:[
+    {id:'morning',emoji:'🌅',label:'Morning',score:1},
+    {id:'afternoon',emoji:'☀️',label:'Afternoon',score:2},
+    {id:'evening',emoji:'🌆',label:'Evening',score:3},
+    {id:'night',emoji:'🌙',label:'Night',score:4},
+  ],
+};
+
+// ============================================================
+// RELATIONSHIP STAGES
+// ============================================================
+function getStage(interest) {
+  if(interest>=85) return {label:'Partner 💕',cls:'stage-partner'};
+  if(interest>=60) return {label:'Crush 💘',cls:'stage-crush'};
+  if(interest>=30) return {label:'Friend 👫',cls:'stage-friend'};
+  return {label:'Stranger 👋',cls:'stage-stranger'};
+}
+function getHearts(interest) {
+  if(interest>=85) return '❤️❤️❤️';
+  if(interest>=60) return '❤️❤️';
+  if(interest>=30) return '❤️';
+  return '🤍';
+}
+function getMoodText(npc) {
+  const moods={
+    '😊':'Happy today — good time to approach!',
+    '😤':'A bit stubborn — tread carefully.',
+    '🤔':'Thoughtful — engage her intellectually.',
+    '😇':'Warm-hearted — gestures will work well.',
+    '🤩':'Excited — match her energy!',
+  };
+  return moods[npc.mood]||'';
+}
+
+// ============================================================
+// AVATAR SVGs
+// ============================================================
+function playerSVG(av) {
+  const skins=['#8B5E3C','#6B3A2A','#A0522D','#C68642'];
+  const shirts=['#008751','#2196F3','#9C27B0','#FF5722'];
+  const s=skins[av]||skins[0], sh=shirts[av]||shirts[0];
+  return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" fill="#f0e6d3" rx="12"/>
+    <rect x="20" y="48" width="40" height="25" rx="8" fill="${sh}"/>
+    <rect x="30" y="42" width="20" height="20" rx="10" fill="${s}"/>
+    <ellipse cx="40" cy="30" rx="18" ry="20" fill="${s}"/>
+    <ellipse cx="40" cy="14" rx="18" ry="10" fill="#2C1810"/>
+    <ellipse cx="33" cy="28" rx="4" ry="5" fill="white"/>
+    <ellipse cx="47" cy="28" rx="4" ry="5" fill="white"/>
+    <circle cx="34" cy="29" r="2.5" fill="#1a0a00"/>
+    <circle cx="48" cy="29" r="2.5" fill="#1a0a00"/>
+    <path d="M34 38 Q40 44 46 38" stroke="#2C1810" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function npcSVG(npc) {
+  return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" fill="#FFF0E6" rx="40"/>
+    <rect x="16" y="46" width="48" height="30" rx="8" fill="${npc.clothColor}"/>
+    <rect x="26" y="40" width="28" height="22" rx="14" fill="${npc.skinTone}"/>
+    <ellipse cx="40" cy="28" rx="20" ry="22" fill="${npc.skinTone}"/>
+    <path d="M20 22 Q40 8 60 22 Q60 10 40 6 Q20 10 20 22Z" fill="${npc.headwrapColor}"/>
+    <ellipse cx="34" cy="27" rx="4" ry="5" fill="white"/>
+    <ellipse cx="46" cy="27" rx="4" ry="5" fill="white"/>
+    <circle cx="35" cy="28" r="2.5" fill="#1a0a00"/>
+    <circle cx="47" cy="28" r="2.5" fill="#1a0a00"/>
+    <circle cx="36" cy="27" r="1" fill="white"/>
+    <circle cx="48" cy="27" r="1" fill="white"/>
+    <path d="M34 37 Q40 43 46 37" stroke="#3a1a00" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <circle cx="20" cy="30" r="3" fill="${npc.headwrapColor}"/>
+    <circle cx="60" cy="30" r="3" fill="${npc.headwrapColor}"/>
+  </svg>`;
+}
+
+function npcSceneSVG(npc,scale=1) {
+  return `<svg viewBox="0 0 100 200" width="${Math.round(90*scale)}" height="${Math.round(180*scale)}" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="155" rx="32" ry="42" fill="${npc.clothColor}"/>
+    <rect x="43" y="105" width="14" height="25" rx="7" fill="${npc.skinTone}"/>
+    <ellipse cx="50" cy="90" rx="28" ry="30" fill="${npc.skinTone}"/>
+    <path d="M22 80 Q50 58 78 80 Q78 64 50 56 Q22 64 22 80Z" fill="${npc.headwrapColor}"/>
+    <ellipse cx="41" cy="88" rx="5.5" ry="6.5" fill="white"/>
+    <ellipse cx="59" cy="88" rx="5.5" ry="6.5" fill="white"/>
+    <circle cx="42" cy="89" r="3.5" fill="#1a0a00"/>
+    <circle cx="60" cy="89" r="3.5" fill="#1a0a00"/>
+    <circle cx="43" cy="88" r="1.2" fill="white"/>
+    <circle cx="61" cy="88" r="1.2" fill="white"/>
+    <path d="M40 100 Q50 110 60 100" stroke="#3a1a00" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="22" cy="90" r="4" fill="${npc.headwrapColor}"/>
+    <circle cx="78" cy="90" r="4" fill="${npc.headwrapColor}"/>
+    <path d="M20 130 Q10 158 18 178" stroke="${npc.clothColor}" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <path d="M80 130 Q90 158 82 178" stroke="${npc.clothColor}" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <circle cx="18" cy="178" r="8" fill="${npc.skinTone}"/>
+    <circle cx="82" cy="178" r="8" fill="${npc.skinTone}"/>
+  </svg>`;
+}
+
+function rivalSVG() {
+  return `<svg viewBox="0 0 80 160" width="60" height="120" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="120" rx="26" ry="35" fill="#2C1810"/>
+    <rect x="34" y="85" width="12" height="20" rx="6" fill="#6B3A2A"/>
+    <ellipse cx="40" cy="72" rx="22" ry="24" fill="#6B3A2A"/>
+    <ellipse cx="40" cy="52" rx="22" ry="10" fill="#1a0a00"/>
+    <ellipse cx="33" cy="70" rx="4" ry="5" fill="white"/>
+    <ellipse cx="47" cy="70" rx="4" ry="5" fill="white"/>
+    <circle cx="34" cy="71" r="2.5" fill="#1a0a00"/>
+    <circle cx="48" cy="71" r="2.5" fill="#1a0a00"/>
+    <path d="M34 82 Q40 78 46 82" stroke="#2C1810" stroke-width="2" fill="none"/>
+    <text x="30" y="48" font-size="14">😤</text>
+  </svg>`;
+}
+
+// ============================================================
+// UTILITY
+// ============================================================
+let toastTimeout;
+function showToast(msg,dur=2500) {
+  const t=document.getElementById('toast');
+  clearTimeout(toastTimeout);
+  t.textContent=msg; t.classList.add('show');
+  toastTimeout=setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateStats() {
+  const s=G.stats;
+  ['charm','money','confidence','intelligence'].forEach(st=>{
+    const maps={charm:'charm',money:'money',confidence:'conf',intelligence:'intel'};
+    const short=maps[st];
+    ['m-'+short,'s-'+short].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.width=Math.max(0,Math.min(100,s[st]))+'%';
+    });
+    ['m-'+short+'-v','s-'+short+'-v'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.textContent=Math.round(s[st]);
+    });
+  });
+  const wb=document.getElementById('wallet-display');
+  if(wb) wb.textContent=G.wallet;
+  const db=document.getElementById('day-badge');
+  if(db) db.textContent='Day '+G.day;
+  const sp=document.getElementById('skill-points-display');
+  if(sp) sp.textContent='SP: '+G.player.skillPoints;
+  // Check charm 100
+  if(s.charm>=100) unlockAchievement('century');
+  // Check wallet
+  if(G.wallet>=5000) unlockAchievement('rich');
+}
+
+function gainXP(amount) {
+  G.player.xp+=amount;
+  const needed=G.player.level*80;
+  if(G.player.xp>=needed){
+    G.player.xp-=needed;
+    G.player.level++;
+    G.player.skillPoints+=2;
+    showToast(`🎉 Level ${G.player.level}! +2 Skill Points!`,3000);
+    if(G.player.level>=5) unlockAchievement('level5');
+  }
+  updateStats();
+  saveGame();
+}
+
+function advanceDay() {
+  G.day++;
+  const db=document.getElementById('day-badge');
+  if(db) db.textContent='Day '+G.day;
+  // Random NPC notification
+  const npcIds=Object.keys(NPCS).filter(id=>G.relationships[id]&&G.relationships[id].met);
+  if(npcIds.length>0){
+    const rid=npcIds[Math.floor(Math.random()*npcIds.length)];
+    const npc=NPCS[rid];
+    setTimeout(()=>{
+      document.getElementById('phone-notif').classList.add('show');
+      showToast(`📱 ${npc.name} sent you a message!`,3000);
+    },1500);
+  }
+}
+
+// ============================================================
+// ACHIEVEMENTS
+// ============================================================
+let goodStreak=0, triviaCorrect=0, rivalRejected=0, giftsBought=0, pidginCompleted=false;
+
+function unlockAchievement(id) {
+  if(G.achievements[id]) return;
+  const def=ACHIEVEMENTS_DEF.find(a=>a.id===id);
+  if(!def) return;
+  G.achievements[id]=true;
+  const pop=document.getElementById('ach-pop');
+  document.getElementById('ach-pop-name').textContent=def.badge+' '+def.title;
+  pop.classList.add('show');
+  setTimeout(()=>pop.classList.remove('show'),3000);
+  buildAchievements();
+  saveGame();
+}
+
+function checkAchievements() {
+  const metCount=Object.values(NPCS).filter(n=>G.relationships[n.id]&&G.relationships[n.id].met).length;
+  if(metCount>=1) unlockAchievement('first_hello');
+  if(metCount>=5) unlockAchievement('all_met');
+  const numbersGot=Object.values(G.relationships).filter(r=>r.interest>=50).length;
+  if(numbersGot>=1) unlockAchievement('first_number');
+  const partnerCount=Object.values(G.relationships).filter(r=>r.interest>=85).length;
+  if(partnerCount>=1) unlockAchievement('partner');
+  const dateCount=Object.values(G.relationships).filter(r=>r.dated).length;
+  if(dateCount>=5) unlockAchievement('all_dates');
+  const skillCount=Object.values(G.skills).filter(Boolean).length;
+  if(skillCount>=5) unlockAchievement('skilled');
+}
+
+// ============================================================
+// SAVE / LOAD
+// ============================================================
+function saveGame() {
+  try {
+    const save={player:G.player,stats:G.stats,wallet:G.wallet,day:G.day,relationships:G.relationships,inventory:G.inventory,skills:G.skills,achievements:G.achievements,messages:G.messages,completedLocations:[...G.completedLocations],datePlans:G.datePlans};
+    localStorage.setItem('naija_love_quest_v2',JSON.stringify(save));
+  } catch(e){}
+}
+
+function loadGame() {
+  try {
+    const raw=localStorage.getItem('naija_love_quest_v2');
+    if(!raw){ showToast('No save found! Start a new game.',2500); return; }
+    const save=JSON.parse(raw);
+    Object.assign(G.player,save.player);
+    Object.assign(G.stats,save.stats);
+    G.wallet=save.wallet||3000;
+    G.day=save.day||1;
+    G.relationships=save.relationships||{};
+    G.inventory=save.inventory||[];
+    G.skills=save.skills||{};
+    G.achievements=save.achievements||{};
+    G.messages=save.messages||{};
+    G.completedLocations=new Set(save.completedLocations||[]);
+    G.datePlans=save.datePlans||{};
+    buildMapScreen();
+    buildJournal();
+    buildTips();
+    buildShop();
+    buildSkills();
+    buildAchievements();
+    buildPhone();
+    updateStats();
+    showScreen('map-screen');
+    showToast(`Welcome back, ${G.player.name}! Day ${G.day} 💚`);
+  } catch(e){ showToast('Save data corrupted. Starting fresh.',2500); }
+}
+
+// ============================================================
+// SETUP
+// ============================================================
+function goToSetup() {
+  showScreen('setup-screen');
+  const grid=document.getElementById('avatar-grid');
+  grid.innerHTML=[0,1,2,3].map(i=>`<div class="avatar-option ${i===0?'selected':''}" onclick="selAvatar(this,${i})">${playerSVG(i)}</div>`).join('');
+  G.player.avatar=0;
+  G.player.trait='funny';
+}
+
+function selAvatar(el,idx){ document.querySelectorAll('.avatar-option').forEach(a=>a.classList.remove('selected')); el.classList.add('selected'); G.player.avatar=idx; }
+function selectTrait(el,t){ document.querySelectorAll('.trait-btn').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); G.player.trait=t; }
+function setLang(l){
+  G.player.lang=l;
+  document.getElementById('lang-english').classList.toggle('selected',l==='english');
+  document.getElementById('lang-pidgin').classList.toggle('selected',l==='pidgin');
+}
+
+function startGame() {
+  const name=document.getElementById('player-name').value.trim()||'Player';
+  G.player.name=name;
+  Object.keys(NPCS).forEach(id=>{ G.relationships[id]={interest:10,met:false,status:'Stranger',dated:false,memories:[],phoneStep:0}; });
+  buildMapScreen(); buildJournal(); buildTips(); buildShop(); buildSkills(); buildAchievements(); buildPhone();
+  updateStats();
+  showScreen('map-screen');
+  showToast(`Welcome, ${name}! Your love story begins! 💚`);
+  saveGame();
+}
+
+// ============================================================
+// MAP
+// ============================================================
+function buildMapScreen() {
+  const container=document.getElementById('map-container');
+  let html=`<div class="map-bg-img"></div>`;
+  html+=`<div class="map-title">📍 Lagos, Nigeria</div>`;
+  html+=`<div class="player-lvl">Lvl ${G.player.level}</div>`;
+
+  // City silhouette SVG
+  html+=`<svg style="position:absolute;bottom:0;left:0;width:100%;height:45%;opacity:.2;pointer-events:none" viewBox="0 0 430 200" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="100" width="50" height="100" fill="#1a3a2a"/>
+    <rect x="12" y="80" width="26" height="20" fill="#1a3a2a"/>
+    <rect x="55" y="120" width="65" height="80" fill="#1a3a2a"/>
+    <rect x="65" y="95" width="45" height="25" fill="#1a3a2a"/>
+    <rect x="125" y="70" width="55" height="130" fill="#1a3a2a"/>
+    <rect x="185" y="100" width="75" height="100" fill="#1a3a2a"/>
+    <rect x="265" y="80" width="50" height="120" fill="#1a3a2a"/>
+    <rect x="320" y="105" width="60" height="95" fill="#1a3a2a"/>
+    <rect x="385" y="85" width="45" height="115" fill="#1a3a2a"/>
+    ${[55,130,190,270,325,390].map(x=>`<rect x="${x+5}" y="${70+Math.random()*40|0}" width="8" height="8" fill="rgba(255,215,0,.4)"/>`).join('')}
+  </svg>`;
+
+  LOCATIONS.forEach((loc,idx)=>{
+    const rel=G.relationships[loc.id];
+    const met=rel&&rel.met;
+    const completed=G.completedLocations.has(loc.id);
+    const delay=idx*0.3;
+    html+=`<div class="location-pin" style="left:${loc.x};top:${loc.y};animation:pin-bounce 2s ${delay}s ease-in-out infinite" onclick="visitLocation('${loc.id}')">
+      <div class="pin-icon" style="background:${loc.color}">${loc.emoji}${completed?'✅':''}</div>
+      <div class="pin-label">${loc.label}</div>
+      ${met?`<div class="pin-hearts">${getHearts(rel.interest)}</div>`:''}
+    </div>`;
+  });
+
+  // Event banner
+  html+=`<div class="event-banner" onclick="showEvents()">🎉 Special Events Available! Tap to view</div>`;
+
+  container.innerHTML=html;
+
+  // CSS for pin bounce
+  if(!document.getElementById('pin-style')){
+    const s=document.createElement('style');
+    s.id='pin-style';
+    s.textContent='@keyframes pin-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}';
+    document.head.appendChild(s);
+  }
+}
+
+// ============================================================
+// VISIT NPC / SCENE
+// ============================================================
+function visitLocation(npcId) {
+  const npc=NPCS[npcId];
+  G.currentNPC=npcId;
+  G.dialogueStep=0;
+
+  const rel=G.relationships[npcId];
+  rel.met=true;
+  checkAchievements();
+
+  // Apply mood modifier
+  let interestBonus=0;
+  if(npc.mood==='😊'||npc.mood==='😇'||npc.mood==='🤩') interestBonus=5;
+  if(interestBonus>0) rel.interest=Math.min(100,rel.interest+interestBonus);
+
+  // Apply skill bonuses
+  if(G.skills.fashion_sense) rel.interest=Math.min(100,rel.interest+10);
+
+  // Scene background
+  document.getElementById('scene-bg-layer').style.background=SCENE_BGS[npcId];
+
+  // Char stage
+  let stageHTML=`<div class="npc-char" id="npc-char">${npcSceneSVG(npc,1.1)}</div>`;
+  // Random rival appearance (30% chance after day 3)
+  if(G.day>3&&Math.random()<0.3&&!G.rivalActive){
+    stageHTML+=`<div class="rival-char">${rivalSVG()}</div>`;
+  }
+  document.getElementById('char-stage').innerHTML=stageHTML;
+
+  // NPC profile
+  const stage=getStage(rel.interest);
+  document.getElementById('npc-profile-card').innerHTML=`
+    <div class="npc-profile-header">
+      <div class="npc-av">${npcSVG(npc)}</div>
+      <div style="flex:1">
+        <div class="npc-name">${npc.name}, ${npc.age}</div>
+        <div class="npc-det">${npc.job} • ${npc.location}</div>
+      </div>
+      <div class="npc-mood" title="${getMoodText(npc)}">${npc.mood}</div>
+      <div class="npc-interest">
+        <div class="npc-hearts">${getHearts(rel.interest)}</div>
+        <div class="npc-il">Interest ${rel.interest}%</div>
+      </div>
+    </div>
+    <div class="npc-tags">
+      ${npc.interests.map(i=>`<span class="npc-tag">${i}</span>`).join('')}
+      <span class="npc-stage-tag">${stage.label}</span>
+    </div>`;
+
+  showScreen('scene-screen');
+  updateStats();
+
+  // Check for rival event
+  if(G.day>5&&Math.random()<0.25) {
+    setTimeout(()=>triggerRivalEvent(npc),2500);
+  } else {
+    // Check for trivia unlock (every 3rd visit)
+    const visitCount=G.completedLocations.size;
+    if(visitCount>0&&visitCount%3===0&&Math.random()<0.5){
+      setTimeout(()=>startTrivia(npc),2000);
+    } else {
+      showDialogue(0);
+    }
+  }
+}
+
+// ============================================================
+// DIALOGUE with TYPEWRITER EFFECT
+// ============================================================
+let typewriterInterval;
+function showDialogue(step) {
+  const npc=NPCS[G.currentNPC];
+  const lang=G.player.lang;
+  const dialogues=npc.dialogue[lang]||npc.dialogue.english;
+
+  if(step>=dialogues.length){ showDialogue(dialogues.length-1); return; }
+  const d=dialogues[step];
+  G.dialogueStep=step;
+
+  document.getElementById('dlg-name').textContent=npc.name;
+  document.getElementById('dlg-mood').textContent=getMoodText(npc);
+  document.getElementById('choices').innerHTML='';
+
+  // Typewriter effect
+  const textEl=document.getElementById('dlg-text');
+  textEl.innerHTML='';
+  clearInterval(typewriterInterval);
+  let i=0;
+  const fullText=d.text;
+  const cursor=`<span class="typewriter-cursor"></span>`;
+  typewriterInterval=setInterval(()=>{
+    if(i<fullText.length){
+      textEl.innerHTML=fullText.slice(0,++i)+cursor;
+    } else {
+      clearInterval(typewriterInterval);
+      textEl.innerHTML=fullText;
+      renderChoices(d.choices);
+    }
+  },22);
+}
+
+function renderChoices(choices) {
+  const npc=NPCS[G.currentNPC];
+  // Add skill-unlocked extra choice
+  let extraChoice=null;
+  if(G.skills.smooth_talker&&G.dialogueStep===0){
+    extraChoice={ text:'I\'ve been looking forward to meeting you! ✨', type:'good', cd:15, st:1, lesson:'Smooth Talker skill activated!' };
+  }
+  const allChoices=extraChoice?[...choices,extraChoice]:choices;
+
+  document.getElementById('choices').innerHTML=allChoices.map((c,i)=>{
+    const type=c.type==='pidgin'?'pidgin':c.type;
+    return `<button class="choice-btn ${type}" onclick="makeChoice(${i},${!!extraChoice})">
+      <span class="ct ${type}">${type==='good'?'✓':type==='bad'?'✗':type==='pidgin'?'🇳🇬':'~'}</span>
+      ${c.text}
+    </button>`;
+  }).join('');
+}
+
+function makeChoice(idx,hasExtra) {
+  const npc=NPCS[G.currentNPC];
+  const lang=G.player.lang;
+  const dialogues=npc.dialogue[lang]||npc.dialogue.english;
+  const d=dialogues[G.dialogueStep];
+
+  let choices=d.choices;
+  if(hasExtra&&G.skills.smooth_talker&&G.dialogueStep===0){
+    const extra={ text:'I\'ve been looking forward to meeting you!', type:'good', cd:15, st:1, lesson:'Smooth Talker skill activated!' };
+    choices=[...choices,extra];
+  }
+  const choice=choices[idx];
+  const rel=G.relationships[G.currentNPC];
+
+  // Calculate delta with skill bonuses
+  let delta=choice.cd||0;
+  if(delta>0&&G.skills.active_listener) delta=Math.round(delta*1.3);
+  if(delta>0&&choice.type==='good'&&G.player.trait==='romantic') delta=Math.round(delta*1.2);
+  if(delta>0&&G.skills.comedian&&choice.type==='good'&&G.player.trait==='funny') delta=Math.round(delta*1.5);
+
+  G.stats.charm=Math.max(0,Math.min(100,G.stats.charm+delta));
+  rel.interest=Math.max(0,Math.min(100,rel.interest+Math.abs(delta)*(delta>0?1:-0.4)));
+
+  // Track good streak
+  if(delta>0){ goodStreak++; if(goodStreak>=5) unlockAchievement('smooth_criminal'); }
+  else goodStreak=0;
+
+  // Memory system
+  if(choice.lesson) rel.memories.push(choice.lesson);
+  if(rel.memories.length>5) rel.memories.shift();
+
+  // NPC char reaction
+  const charEl=document.getElementById('npc-char');
+  if(charEl){
+    charEl.classList.remove('happy','sad');
+    if(delta>0){ charEl.classList.add('happy'); }
+    else if(delta<0){ charEl.classList.add('sad'); }
+    setTimeout(()=>{ charEl.classList.remove('happy','sad'); },2500);
+  }
+
+  if(delta>0) showToast(`+${delta} Charm ✨`);
+  else if(delta<0) showToast(`${delta} Charm 😬`);
+  updateStats();
+
+  if(lang==='pidgin'&&G.completedLocations.has(G.currentNPC)) pidginCompleted=true;
+  if(pidginCompleted) unlockAchievement('pidgin_pro');
+
+  // Route
+  const st=choice.st;
+  if(st==='fail') return showResult('😬','Awkward...','She walked away. Every interaction is a lesson!',0,false,[choice.lesson]);
+  if(st==='tooFast') return showResult('⚡','Too Fast!','Slow down! Build a connection first.',0,false,['Don\'t rush — connection takes time.']);
+  if(st==='minigame') return startMinigame();
+  if(st==='success'){
+    G.completedLocations.add(G.currentNPC);
+    rel.status=rel.interest>=60?'Close Friend':'Acquaintance';
+    if(rel.interest>=85) unlockAchievement('partner');
+    gainXP(50);
+    checkAchievements();
+    buildMapScreen(); buildJournal();
+    return showResult('🎉','Great Connection!',`${npc.name} gave you her number! Keep in touch.`,50,true,[choice.lesson]);
+  }
+  const nextStep=typeof st==='number'?st:G.dialogueStep+1;
+  if(nextStep<(dialogues.length)) showDialogue(nextStep);
+  else showDialogue(G.dialogueStep);
+}
+
+// ============================================================
+// MINIGAME WITH TIMER
+// ============================================================
+let mgTimer, mgTimeLeft;
+function startMinigame() {
+  const npc=NPCS[G.currentNPC];
+  const mg=npc.minigame;
+  document.getElementById('mg-title').textContent=mg.title;
+  document.getElementById('mg-sub').textContent=mg.sub;
+  document.getElementById('mg-panel').classList.add('show');
+
+  // Timer
+  mgTimeLeft=mg.timer||12;
+  const timerEl=document.getElementById('mg-timer');
+  timerEl.textContent=mgTimeLeft;
+  timerEl.classList.remove('urgent');
+  clearInterval(mgTimer);
+  mgTimer=setInterval(()=>{
+    mgTimeLeft--;
+    timerEl.textContent=mgTimeLeft;
+    if(mgTimeLeft<=4) timerEl.classList.add('urgent');
+    if(mgTimeLeft<=0){ clearInterval(mgTimer); mgTimeExpired(); }
+  },1000);
+
+  // Shuffle options
+  const shuffled=[...mg.options].sort(()=>Math.random()-.5);
+  document.getElementById('mg-grid').innerHTML=shuffled.map(opt=>
+    `<div class="comp-card" onclick="selectCompliment(this,${opt.correct})">
+      <div class="comp-emoji">${opt.emoji}</div>
+      <div class="comp-text">${opt.text}</div>
+    </div>`
+  ).join('');
+}
+
+function mgTimeExpired(){
+  clearInterval(mgTimer);
+  document.getElementById('mg-panel').classList.remove('show');
+  G.stats.charm=Math.max(0,G.stats.charm-10);
+  showToast('⏰ Time\'s up! −10 Charm');
+  updateStats();
+  const npc=NPCS[G.currentNPC];
+  const lang=G.player.lang;
+  const dialogues=npc.dialogue[lang]||npc.dialogue.english;
+  showDialogue(Math.min(3,dialogues.length-1));
+}
+
+function selectCompliment(el,correct) {
+  clearInterval(mgTimer);
+  const rel=G.relationships[G.currentNPC];
+  const npc=NPCS[G.currentNPC];
+  el.classList.add(correct?'correct':'wrong');
+  setTimeout(()=>{
+    document.getElementById('mg-panel').classList.remove('show');
+    if(correct){
+      let bonus=20; if(G.skills.active_listener) bonus=30;
+      G.stats.charm=Math.min(100,G.stats.charm+15);
+      rel.interest=Math.min(100,rel.interest+bonus);
+      showToast('🎯 Perfect choice! +15 Charm!');
+    } else {
+      G.stats.charm=Math.max(0,G.stats.charm-5);
+      showToast('😬 Could\'ve been better... −5 Charm');
+    }
+    updateStats();
+    const lang=G.player.lang;
+    const dialogues=npc.dialogue[lang]||npc.dialogue.english;
+    showDialogue(Math.min(3,dialogues.length-1));
+  },900);
+}
+
+function skipMinigame() {
+  clearInterval(mgTimer);
+  G.stats.charm=Math.max(0,G.stats.charm-5);
+  document.getElementById('mg-panel').classList.remove('show');
+  updateStats();
+  const npc=NPCS[G.currentNPC];
+  const lang=G.player.lang;
+  const dialogues=npc.dialogue[lang]||npc.dialogue.english;
+  showDialogue(Math.min(3,dialogues.length-1));
+}
+
+// ============================================================
+// RIVAL EVENT
+// ============================================================
+function triggerRivalEvent(npc) {
+  const rival=npc.rival||{name:'Someone',desc:'A rival appears!'};
+  document.getElementById('rival-title').textContent=`😤 Rival Alert!`;
+  document.getElementById('rival-msg').textContent=`${rival.name} is also interested in ${npc.name}. ${rival.desc} How do you handle this?`;
+  document.getElementById('rival-event').classList.add('show');
+  G.rivalActive=true;
+}
+
+function handleRival(standGround) {
+  document.getElementById('rival-event').classList.remove('show');
+  G.rivalActive=false;
+  const rel=G.relationships[G.currentNPC];
+  if(standGround){
+    G.stats.confidence=Math.min(100,G.stats.confidence+15);
+    rel.interest=Math.min(100,rel.interest+15);
+    rivalRejected++;
+    if(rivalRejected>=3) unlockAchievement('loyal');
+    showToast('💪 You stood your ground! +15 Confidence!');
+  } else {
+    G.stats.confidence=Math.max(0,G.stats.confidence-10);
+    rel.interest=Math.max(0,rel.interest-10);
+    showToast('😔 She noticed you backed off...');
+  }
+  updateStats();
+  showDialogue(G.dialogueStep);
+}
+
+// ============================================================
+// TRIVIA
+// ============================================================
+function startTrivia(npc) {
+  const tv=npc.trivia;
+  document.getElementById('trivia-q').textContent=tv.q;
+  document.getElementById('trivia-score').textContent=`Cultural Trivia — Answer right for +20 Charm!`;
+  document.getElementById('trivia-opts').innerHTML=tv.opts.map((opt,i)=>
+    `<button class="trivia-opt" onclick="answerTrivia(this,${i===tv.correct},${JSON.stringify(opt).replace(/"/g,"'")})">${opt}</button>`
+  ).join('');
+  document.getElementById('trivia-panel').classList.add('show');
+}
+
+function answerTrivia(el,correct) {
+  document.querySelectorAll('.trivia-opt').forEach(b=>b.disabled=true);
+  el.classList.add(correct?'correct':'wrong');
+  setTimeout(()=>{
+    document.getElementById('trivia-panel').classList.remove('show');
+    if(correct){
+      G.stats.charm=Math.min(100,G.stats.charm+20);
+      showToast('🧠 Correct! +20 Charm! You know your culture!');
+      triviaCorrect++;
+      if(triviaCorrect>=3) unlockAchievement('trivia_ace');
+    } else {
+      showToast('😅 Learn more about Nigerian culture!');
+    }
+    updateStats();
+    showDialogue(G.dialogueStep);
+  },1200);
+}
+
+// ============================================================
+// RESULT PANEL
+// ============================================================
+function showResult(emoji,title,msg,xp,success,lessons=[]) {
+  document.getElementById('res-emoji').textContent=emoji;
+  document.getElementById('res-title').textContent=title;
+  document.getElementById('res-msg').textContent=msg;
+  document.getElementById('res-xp').textContent=success?`+${xp} XP earned! 🌟`:'Keep trying!';
+  const debrief=document.getElementById('res-debrief');
+  if(lessons&&lessons.length>0){
+    debrief.innerHTML=`<div class="debrief-title">💡 What You Learned</div>`+
+      lessons.filter(Boolean).map(l=>`<div class="debrief-item"><span>💚</span><span>${l}</span></div>`).join('');
+    debrief.style.display='block';
+  } else { debrief.style.display='none'; }
+  document.getElementById('result-panel').classList.add('show');
+  if(success&&xp>0) gainXP(xp);
+}
+
+function closeResult() {
+  document.getElementById('result-panel').classList.remove('show');
+  advanceDay();
+  backToMap();
+}
+
+function backToMap() {
+  showScreen('map-screen');
+  buildMapScreen();
+  switchTab('map');
+  saveGame();
+}
+
+// ============================================================
+// PHONE / TEXTING
+// ============================================================
+function buildPhone() {
+  const container=document.getElementById('phone-contacts');
+  const metNPCs=Object.values(NPCS).filter(n=>G.relationships[n.id]&&G.relationships[n.id].met);
+  if(metNPCs.length===0){
+    container.innerHTML=`<div style="padding:40px;text-align:center;color:rgba(255,255,255,.4)">
+      <div style="font-size:40px;margin-bottom:12px">📵</div>
+      <div style="font-size:14px">No contacts yet!<br>Meet someone on the Map first.</div>
+    </div>`;
+    return;
+  }
+  container.innerHTML=metNPCs.map(npc=>{
+    const ms=G.messages[npc.id];
+    const lastMsg=ms&&ms.length>0?ms[ms.length-1].text:'Tap to start chatting!';
+    const unread=G.relationships[npc.id].interest>=30;
+    return `<div class="contact-item" onclick="openChat('${npc.id}')">
+      <div class="contact-av">${npcSVG(npc)}</div>
+      <div style="flex:1">
+        <div class="contact-name">${npc.name}</div>
+        <div class="contact-preview">${lastMsg.substring(0,40)}${lastMsg.length>40?'...':''}</div>
+      </div>
+      <div>
+        <div class="contact-time">${unread?'now':''}</div>
+        ${unread?'<div class="unread-dot"></div>':''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('phone-notif').classList.remove('show');
+}
+
+function openChat(npcId) {
+  G.currentNPC=npcId;
+  const npc=NPCS[npcId];
+  const rel=G.relationships[npcId];
+  if(!rel.met||rel.interest<25){
+    showToast('Meet her first and build some connection! 👋');
+    return;
+  }
+
+  document.getElementById('chat-av').innerHTML=npcSVG(npc);
+  document.getElementById('chat-name').textContent=npc.name;
+  document.getElementById('chat-status').textContent='● Online';
+  showScreen('chat-screen');
+
+  // Init messages
+  if(!G.messages[npcId]) G.messages[npcId]=[];
+  const msgs=G.messages[npcId];
+  const convo=npc.phoneConvo;
+  const step=rel.phoneStep||0;
+
+  if(msgs.length===0&&convo&&convo.length>0&&convo[0].from==='npc'){
+    msgs.push({from:'npc',text:convo[0].text,time:getTime()});
+    rel.phoneStep=1;
+  }
+
+  renderChatMessages(npcId);
+  renderChatReplies(npcId);
+}
+
+function renderChatMessages(npcId) {
+  const msgs=G.messages[npcId]||[];
+  const el=document.getElementById('chat-messages');
+  el.innerHTML=msgs.map(m=>`
+    <div class="msg ${m.from==='player'?'sent':'received'}">
+      ${m.text}
+      <div class="msg-time">${m.time||'now'}</div>
+    </div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function renderChatReplies(npcId) {
+  const npc=NPCS[npcId];
+  const rel=G.relationships[npcId];
+  const convo=npc.phoneConvo;
+  const step=rel.phoneStep||0;
+  const repliesEl=document.getElementById('chat-replies');
+
+  if(!convo||step>=convo.length){
+    repliesEl.innerHTML=`<div style="color:rgba(255,255,255,.4);font-size:12px;padding:8px;text-align:center">Chat is going well! Plan a date 📅</div>`;
+    return;
+  }
+
+  const current=convo[step];
+  if(!current){ repliesEl.innerHTML=''; return; }
+
+  if(current.from==='player'&&current.replies){
+    repliesEl.innerHTML=current.replies.map((r,i)=>
+      `<div class="reply-opt" onclick="sendReply('${npcId}',${i})">${r.text}</div>`
+    ).join('');
+  } else {
+    repliesEl.innerHTML=`<div style="color:rgba(255,255,255,.4);font-size:12px;padding:8px">She's typing...</div>`;
+    setTimeout(()=>npcReply(npcId),1500);
+  }
+}
+
+function sendReply(npcId,idx) {
+  const npc=NPCS[npcId];
+  const rel=G.relationships[npcId];
+  const convo=npc.phoneConvo;
+  const step=rel.phoneStep||0;
+  const current=convo[step];
+  if(!current||!current.replies) return;
+
+  const reply=current.replies[idx];
+  if(!G.messages[npcId]) G.messages[npcId]=[];
+  G.messages[npcId].push({from:'player',text:reply.text,time:getTime()});
+
+  rel.interest=Math.min(100,rel.interest+(reply.boost||5));
+  rel.phoneStep=(step+1);
+  renderChatMessages(npcId);
+
+  // NPC responds after delay
+  const nextStep=convo[rel.phoneStep];
+  if(nextStep&&nextStep.from==='npc'){
+    document.getElementById('chat-replies').innerHTML=`<div style="color:rgba(255,255,255,.4);font-size:12px;padding:8px">${npc.name} is typing...</div>`;
+    setTimeout(()=>npcReply(npcId),1200);
+  } else {
+    renderChatReplies(npcId);
+  }
+  updateStats(); buildJournal(); saveGame();
+}
+
+function npcReply(npcId) {
+  const npc=NPCS[npcId];
+  const rel=G.relationships[npcId];
+  const convo=npc.phoneConvo;
+  const step=rel.phoneStep;
+  if(!convo||step>=convo.length) return;
+  const msg=convo[step];
+  if(!msg||msg.from!=='npc') return;
+
+  G.messages[npcId].push({from:'npc',text:msg.text,time:getTime()});
+  rel.phoneStep++;
+  renderChatMessages(npcId);
+  renderChatReplies(npcId);
+}
+
+function getTime() {
+  const d=new Date();
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+}
+
+// ============================================================
+// DATE PLANNER
+// ============================================================
+let datePlan={ loc:null, outfit:null, gift:null, time:null };
+
+function openDatePlanner(npcId) {
+  const rel=G.relationships[npcId||G.currentNPC];
+  if(!rel||rel.interest<50){
+    showToast('Build more connection first! Need 50+ interest 💕');
+    return;
+  }
+  G.currentNPC=npcId||G.currentNPC;
+  datePlan={ loc:null, outfit:null, gift:null, time:null };
+
+  document.getElementById('date-screen-title').textContent=`Plan a Date with ${NPCS[G.currentNPC].name}`;
+
+  const makeOpts=(opts,rowId,planKey)=>
+    opts.map(o=>`<div class="date-opt" onclick="selectDateOpt(this,'${rowId}','${planKey}','${o.id}',${o.score},${o.cost||0})" title="${o.label}">
+      <span class="date-opt-emoji">${o.emoji}</span>
+      <span class="date-opt-label">${o.label}</span>
+    </div>`).join('');
+
+  document.getElementById('date-loc-row').innerHTML=makeOpts(DATE_OPTIONS.locations,'date-loc-row','loc');
+  document.getElementById('date-outfit-row').innerHTML=makeOpts(DATE_OPTIONS.outfits,'date-outfit-row','outfit');
+  document.getElementById('date-gift-row').innerHTML=makeOpts(DATE_OPTIONS.gifts,'date-gift-row','gift');
+  document.getElementById('date-time-row').innerHTML=makeOpts(DATE_OPTIONS.times,'date-time-row','time');
+
+  showScreen('date-screen');
+}
+
+function selectDateOpt(el,rowId,planKey,optId,score,cost) {
+  document.querySelectorAll(`#${rowId} .date-opt`).forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  datePlan[planKey]={ id:optId, score, cost };
+  updateDatePreview();
+}
+
+function updateDatePreview() {
+  const total=Object.values(datePlan).filter(Boolean).reduce((sum,o)=>sum+(o.score||0),0);
+  const totalCost=Object.values(datePlan).filter(Boolean).reduce((sum,o)=>sum+(o.cost||0),0);
+  const npc=NPCS[G.currentNPC];
+  let grade='',emoji='';
+  if(total>=10){ grade='Perfect Date! 🌟'; emoji='💕'; }
+  else if(total>=7){ grade='Great Date! 😍'; emoji='❤️'; }
+  else if(total>=5){ grade='Nice Date'; emoji='😊'; }
+  else if(total>0){ grade='Basic Date...'; emoji='😐'; }
+  else{ grade='Plan your date above! 👆'; emoji='📅'; }
+  document.getElementById('date-preview-card').innerHTML=`
+    <div style="font-size:36px;margin-bottom:8px">${emoji}</div>
+    <div style="font-family:'Baloo 2',cursive;font-size:18px;color:var(--gold);font-weight:800">${grade}</div>
+    <div style="color:rgba(255,255,255,.7);font-size:13px;margin-top:6px">Score: ${total}/13 • Cost: ₦${totalCost}</div>
+    ${totalCost>0?`<div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:4px">Wallet: ₦${G.wallet}</div>`:''}`;
+}
+
+function goOnDate() {
+  const filled=Object.values(datePlan).filter(Boolean).length;
+  if(filled<2){ showToast('Plan at least 2 aspects of the date!'); return; }
+  const total=Object.values(datePlan).filter(Boolean).reduce((sum,o)=>sum+(o.score||0),0);
+  const totalCost=Object.values(datePlan).filter(Boolean).reduce((sum,o)=>sum+(o.cost||0),0);
+  if(G.wallet<totalCost){ showToast('Not enough money! 💰 Earn more in the Shop.'); return; }
+  G.wallet-=totalCost;
+  const rel=G.relationships[G.currentNPC];
+  const npc=NPCS[G.currentNPC];
+  let boost=0,msg='';
+  if(total>=10){ boost=35; msg=`The date was absolutely perfect! ${npc.name} is head over heels! 💕`; unlockAchievement('date_master'); }
+  else if(total>=7){ boost=22; msg=`${npc.name} had a wonderful time! She's definitely interested.`; }
+  else if(total>=5){ boost=12; msg=`It was a decent date. ${npc.name} had fun but felt you could do better.`; }
+  else { boost=5; msg=`${npc.name} appreciated the effort but the date wasn't very memorable.`; }
+  rel.interest=Math.min(100,rel.interest+boost);
+  rel.dated=true;
+  checkAchievements();
+  gainXP(total*5);
+  updateStats(); buildJournal(); saveGame();
+  advanceDay();
+
+  // Show result
+  showScreen('map-screen');
+  setTimeout(()=>{
+    alert(`💕 Date Result!\n\n${msg}\n\n+${boost} Interest\n+${total*5} XP`);
+    buildMapScreen();
+  },300);
+}
+
+// ============================================================
+// SHOP
+// ============================================================
+function buildShop() {
+  const discount=G.skills.negotiator?0.8:1;
+  document.getElementById('wallet-display').textContent=G.wallet;
+
+  document.getElementById('gift-grid').innerHTML=GIFTS.map(g=>{
+    const price=Math.round(g.price*discount);
+    const owned=G.inventory.filter(i=>i===g.id).length;
+    return `<div class="gift-card ${owned?'owned':''}" onclick="buyGift('${g.id}',${price},${g.boost},'${g.likes.join(',')}')">
+      <div class="gift-emoji">${g.emoji}</div>
+      <div class="gift-name">${g.name}</div>
+      <div class="gift-price">₦${price}</div>
+      <div class="gift-likes">Fav: ${g.likes.map(id=>NPCS[id]?.name).join(', ')}</div>
+      ${owned?`<div style="font-size:10px;color:var(--gold);font-weight:800">Owned: ${owned}</div>`:''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('activity-list').innerHTML=ACTIVITIES.map(a=>{
+    const cost=a.cost;
+    return `<div class="activity-card" onclick="doActivity('${a.id}',${cost},${JSON.stringify(a.effect)})">
+      <div class="act-icon">${a.emoji}</div>
+      <div style="flex:1">
+        <div class="act-name">${a.name}</div>
+        <div class="act-effect">${a.desc} • ${a.time}</div>
+      </div>
+      <div class="act-cost">${cost>0?'₦'+cost:'Free'}</div>
+    </div>`;
+  }).join('');
+}
+
+function buyGift(id,price,boost,likesStr) {
+  if(G.wallet<price){ showToast('Not enough money! 💰'); return; }
+  G.wallet-=price;
+  G.inventory.push(id);
+  giftsBought++;
+  if(giftsBought>=3) unlockAchievement('collector');
+  document.getElementById('wallet-display').textContent=G.wallet;
+  showToast(`🎁 ${id} bought! Now give it to someone special.`);
+  buildShop();
+  saveGame();
+
+  // Auto-give gift modal
+  const likes=likesStr.split(',');
+  const metNPCs=Object.keys(NPCS).filter(nid=>G.relationships[nid]&&G.relationships[nid].met);
+  if(metNPCs.length>0){
+    const opts=metNPCs.map(nid=>`<button class="btn-secondary" style="max-width:100%" onclick="giveGift('${id}','${nid}',${boost},${likes.includes(nid)})">${NPCS[nid].name} ${getHearts(G.relationships[nid].interest)}</button>`).join('');
+    showModal(`<div class="modal-handle"></div><div class="screen-title" style="text-align:center;margin-bottom:16px">🎁 Give ${id}?</div>${opts}<button class="btn-secondary" onclick="closeModal()">Keep for later</button>`);
+  }
+}
+
+function giveGift(giftId,npcId,baseBoost,isFav) {
+  closeModal();
+  const rel=G.relationships[npcId];
+  const npc=NPCS[npcId];
+  if(!rel.met){ showToast('Meet her first!'); return; }
+  const invIdx=G.inventory.indexOf(giftId);
+  if(invIdx===-1){ showToast('You don\'t have that gift!'); return; }
+  G.inventory.splice(invIdx,1);
+  let boost=isFav?baseBoost*2:baseBoost;
+  if(G.skills.gift_giver) boost=Math.round(boost*1.5);
+  rel.interest=Math.min(100,rel.interest+boost);
+  showToast(`${npc.name} loved the gift! +${boost} Interest 💕`);
+  buildJournal(); buildShop(); updateStats(); saveGame();
+}
+
+function doActivity(id,cost,effectObj) {
+  if(G.wallet<cost){ showToast('Not enough money! 💰'); return; }
+  G.wallet-=cost;
+  Object.entries(effectObj).forEach(([k,v])=>{
+    if(k==='wallet') G.wallet+=v;
+    else if(G.stats[k]!==undefined) G.stats[k]=Math.min(100,G.stats[k]+v);
+  });
+  const effect=Object.entries(effectObj).map(([k,v])=>`+${v} ${k}`).join(', ');
+  showToast(`✅ Activity done! ${effect}`);
+  if(id==='work'&&G.skills.hustler) G.wallet+=500;
+  buildShop(); updateStats(); advanceDay(); saveGame();
+}
+
+// ============================================================
+// SKILLS
+// ============================================================
+function buildSkills() {
+  document.getElementById('skill-points-display').textContent='SP: '+G.player.skillPoints;
+  const categories=[...new Set(SKILLS_TREE.map(s=>s.category))];
+  document.getElementById('skills-content').innerHTML=categories.map(cat=>`
+    <div class="skill-section">
+      <div class="skill-section-title">${cat}</div>
+      <div class="skill-grid">
+        ${SKILLS_TREE.filter(s=>s.category===cat).map(sk=>{
+          const unlocked=G.skills[sk.id];
+          const reqMet=!sk.requires||G.skills[sk.requires];
+          const locked=!reqMet;
+          return `<div class="skill-card ${unlocked?'unlocked':''} ${locked?'locked':''}" onclick="unlockSkill('${sk.id}',${sk.cost})">
+            <div class="skill-icon">${sk.icon}</div>
+            <div class="skill-name">${sk.name}${unlocked?' ✓':''}</div>
+            <div class="skill-desc">${sk.desc}</div>
+            <div class="skill-cost">${unlocked?'Unlocked ✅':locked?`Requires: ${SKILLS_TREE.find(s=>s.id===sk.requires)?.name||'?'}`:`Cost: ${sk.cost} SP`}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function unlockSkill(id,cost) {
+  if(G.skills[id]){ showToast('Already unlocked!'); return; }
+  const sk=SKILLS_TREE.find(s=>s.id===id);
+  if(!sk) return;
+  if(sk.requires&&!G.skills[sk.requires]){ showToast(`Unlock "${SKILLS_TREE.find(s=>s.id===sk.requires)?.name}" first!`); return; }
+  if(G.player.skillPoints<cost){ showToast(`Need ${cost} Skill Points! Level up to earn more.`); return; }
+  G.player.skillPoints-=cost;
+  G.skills[id]=true;
+  showToast(`⚡ Skill Unlocked: ${sk.name}!`);
+  const skillCount=Object.values(G.skills).filter(Boolean).length;
+  if(skillCount>=5) unlockAchievement('skilled');
+  buildSkills(); saveGame();
+}
+
+// ============================================================
+// JOURNAL
+// ============================================================
+function buildJournal() {
+  document.getElementById('journal-list').innerHTML=Object.values(NPCS).map(npc=>{
+    const rel=G.relationships[npc.id]||{met:false,interest:10,memories:[]};
+    const stage=getStage(rel.interest);
+    const lastMemory=rel.memories&&rel.memories.length>0?rel.memories[rel.memories.length-1]:'No interactions yet';
+    return `<div class="npc-journal-card" onclick="visitLocation('${npc.id}')">
+      <div class="njc-row">
+        <div class="njc-av">${npcSVG(npc)}</div>
+        <div style="flex:1">
+          <div class="njc-name">${npc.name}, ${npc.age}</div>
+          <div class="njc-status">${npc.job} • ${rel.met?'Met ✓':'Not met yet'}</div>
+          <span class="njc-stage ${stage.cls}">${stage.label}</span>
+          ${rel.dated?'<span class="njc-stage" style="background:rgba(255,107,157,.3);color:#ff6b9d;margin-left:4px">Dated 💕</span>':''}
+        </div>
+        <div style="font-size:22px">${getHearts(rel.interest)}</div>
+      </div>
+      <div class="love-bar-wrap"><div class="love-bar-fill" style="width:${rel.interest}%"></div></div>
+      <div class="njc-memory">💭 "${lastMemory}"</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// ACHIEVEMENTS
+// ============================================================
+function buildAchievements() {
+  const earned=Object.keys(G.achievements).length;
+  document.getElementById('ach-progress').textContent=`${earned}/${ACHIEVEMENTS_DEF.length}`;
+  document.getElementById('ach-grid').innerHTML=ACHIEVEMENTS_DEF.map(a=>
+    `<div class="ach-card ${G.achievements[a.id]?'earned':'locked-ach'}">
+      <div class="ach-badge">${a.badge}</div>
+      <div class="ach-title">${a.title}</div>
+      <div class="ach-desc">${a.desc}</div>
+    </div>`
+  ).join('');
+}
+
+// ============================================================
+// EVENTS
+// ============================================================
+function showEvents() {
+  document.getElementById('event-content').innerHTML=EVENTS.map(ev=>`
+    <div class="event-card" onclick="triggerEvent('${ev.id}')">
+      <div class="event-emoji">${ev.emoji}</div>
+      <div class="event-title">${ev.title}</div>
+      <div class="event-desc">${ev.desc}</div>
+      <button class="btn-gold" style="max-width:200px" onclick="triggerEvent('${ev.id}')">Join Event!</button>
+    </div>`).join('');
+  showScreen('event-screen');
+}
+
+function triggerEvent(id) {
+  const ev=EVENTS.find(e=>e.id===id);
+  if(!ev) return;
+  if(ev.bonus.charm) G.stats.charm=Math.min(100,G.stats.charm+ev.bonus.charm);
+  if(ev.bonus.allInterest) Object.values(G.relationships).forEach(r=>r.interest=Math.min(100,r.interest+ev.bonus.allInterest));
+  gainXP(30);
+  showToast(`🎉 ${ev.title} bonus activated!`);
+  updateStats(); buildJournal(); saveGame();
+  backToMap();
+}
+
+// ============================================================
+// TIPS
+// ============================================================
+function buildTips() {
+  document.getElementById('tips-content').innerHTML=TIPS_DATA.map(t=>`
+    <div class="tip-card">
+      <div class="tip-header">
+        <div class="tip-icon-big">${t.icon}</div>
+        <div class="tip-title">${t.title}</div>
+      </div>
+      <div class="tip-body">${t.body}</div>
+    </div>`).join('');
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function showModal(html) {
+  let overlay=document.getElementById('modal-overlay');
+  if(!overlay){
+    overlay=document.createElement('div');
+    overlay.id='modal-overlay';
+    overlay.className='modal-overlay';
+    overlay.innerHTML=`<div class="modal-sheet" id="modal-sheet"></div>`;
+    overlay.addEventListener('click',e=>{ if(e.target===overlay) closeModal(); });
+    document.getElementById('app').appendChild(overlay);
+  }
+  document.getElementById('modal-sheet').innerHTML=html;
+  overlay.classList.add('show');
+}
+
+function closeModal() {
+  const overlay=document.getElementById('modal-overlay');
+  if(overlay) overlay.classList.remove('show');
+}
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+function switchTab(tab) {
+  const screens={ map:'map-screen', skills:'skills-screen', phone:'phone-screen', shop:'shop-screen', journal:'journal-screen', ach:'achievements-screen' };
+  showScreen(screens[tab]||'map-screen');
+  if(tab==='phone'){ buildPhone(); }
+  if(tab==='journal'){ buildJournal(); }
+  if(tab==='skills'){ buildSkills(); }
+  if(tab==='shop'){ buildShop(); }
+  if(tab==='ach'){ buildAchievements(); }
+}
+
+// ============================================================
+// STARS
+// ============================================================
+function createStars() {
+  const c=document.getElementById('stars');
+  for(let i=0;i<70;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1.5+Math.random()*2}s;opacity:${Math.random()*0.5};width:${1+Math.random()*3}px;height:${1+Math.random()*3}px;`;
+    c.appendChild(s);
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+createStars();
+buildTips();
+</script>
+</body>
+</html>
