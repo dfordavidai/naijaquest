@@ -6177,7 +6177,7 @@ const _origBuildMapScreen = window.buildMapScreen;
 
 // ---- PATCH visitLocation FOR SECRET NPC + CROSSOVERS ----
 const _origVisitLocationV6 = window.visitLocation;
-function visitLocation(npcId) {
+window.visitLocation = function(npcId) {
   // Check if secret NPC is locked
   if(npcId === 'adaeze' && !G.adaezeUnlocked) {
     showToast('🔒 Complete 3 story paths to unlock this location...', 3000);
@@ -6196,7 +6196,7 @@ function visitLocation(npcId) {
 
 // ---- PATCH showDialogue FOR INNER THOUGHTS + NG+ + NARRATOR ----
 const _origShowDialogueV6 = window.showDialogue;
-function showDialogue(step) {
+window.showDialogue = function(step) {
   _origShowDialogueV6 && _origShowDialogueV6(step);
   // Clear inner thoughts slot
   const its = document.getElementById('inner-thoughts-slot');
@@ -6209,7 +6209,7 @@ function showDialogue(step) {
 
 // ---- PATCH renderChoices FOR NG+ AND DIFFICULTY ----
 const _origRenderChoices = window.renderChoices;
-function renderChoices(choices) {
+window.renderChoices = function(choices) {
   let finalChoices = choices;
   if(SETTINGS.difficulty === 'ngplus') finalChoices = applyNGPlusToChoices(choices);
   _origRenderChoices && _origRenderChoices.call(window, finalChoices);
@@ -6217,7 +6217,7 @@ function renderChoices(choices) {
 
 // ---- PATCH makeChoice FOR DIFFICULTY MULTIPLIER + INNER THOUGHTS UPDATE ----
 const _origMakeChoiceV6 = window.makeChoice;
-function makeChoice(idx, hasExtra) {
+window.makeChoice = function(idx, hasExtra) {
   // Get choice type before calling original
   const npc = NPCS[G.currentNPC];
   const lang = G.player?.lang || 'english';
@@ -6246,7 +6246,7 @@ function makeChoice(idx, hasExtra) {
 
 // ---- BUILDMAPSCREEN: SECRET NPC PIN ----
 const _origBuildMapV6 = window.buildMapScreen;
-function buildMapScreen() {
+window.buildMapScreen = function() {
   _origBuildMapV6 && _origBuildMapV6();
   // Add secret NPC pin if unlocked
   if(G.adaezeUnlocked) {
