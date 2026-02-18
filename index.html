@@ -1192,7 +1192,7 @@ input, select, textarea {
 <!-- ===================== SETTINGS SCREEN ===================== -->
 <div class="screen" id="settings-screen">
   <div class="stats-bar">
-    <button onclick="backToMap()" style="background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer">‹</button>
+    <button onclick="closeSettings()" style="background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer">‹</button>
     <div style="font-family:'Baloo 2',cursive;font-size:17px;color:var(--gold);font-weight:800;flex:1;text-align:center">⚙️ Settings</div>
   </div>
   <div style="overflow-y:auto;flex:1;padding:12px" id="settings-content"></div>
@@ -2672,7 +2672,15 @@ function setLang(l){
 }
 
 function startGame() {
-  const name=document.getElementById('player-name').value.trim()||'Player';
+  const name=document.getElementById('player-name').value.trim();
+  if(!name){
+    const inp=document.getElementById('player-name');
+    inp.style.borderColor='#E74C3C';
+    inp.placeholder='Enter your name first! 👆';
+    inp.focus();
+    setTimeout(()=>{inp.style.borderColor='';inp.placeholder='Enter your name...';},2000);
+    return;
+  }
   G.player.name=name;
   G.timeOfDay='morning';
   G.energy=G.maxEnergy;
@@ -5689,7 +5697,19 @@ function applyAccessibility() {
 }
 
 // ---- SETTINGS SCREEN ----
+function closeSettings() {
+  const dest = window._settingsFrom || ((G.player && G.player.name) ? 'map-screen' : 'title-screen');
+  if(dest === 'map-screen') {
+    backToMap();
+  } else {
+    if(typeof _origShowScreen === 'function') _origShowScreen(dest);
+    else showScreen(dest);
+  }
+}
+
 function showSettings() {
+  // Remember where to go back: map if game running, title if not
+  window._settingsFrom = (G.player && G.player.name) ? 'map-screen' : 'title-screen';
   if(typeof _origShowScreen === 'function') _origShowScreen('settings-screen');
   else showScreen('settings-screen');
   buildSettingsScreen();
@@ -5856,6 +5876,7 @@ const TUTORIAL_STEPS = [
 
 let tutStep = 0;
 function startTutorial() {
+  window._tutorialFrom = (G.player && G.player.name) ? 'map-screen' : 'title-screen';
   tutStep = 0;
   _origShowScreen('tutorial-screen');
   renderTutorialStep();
@@ -5918,8 +5939,11 @@ function tutPrev() {
 
 function skipTutorial() {
   G.tutorialDone = true;
+  const from = window._tutorialFrom || 'title-screen';
   if(G.player && G.player.name) {
     _origShowScreen('map-screen');
+  } else if(from === 'title-screen') {
+    _origShowScreen('title-screen');
   } else {
     goToSetup();
   }
